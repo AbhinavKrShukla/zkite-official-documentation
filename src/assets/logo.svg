@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="zkite-grad1" x1="4" y1="24" x2="44" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="zkite-grad2" x1="24" y1="4" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <!-- Kite diamond outer -->
+  <path d="M24 4 L44 24 L24 44 L4 24 Z" stroke="url(#zkite-grad1)" stroke-width="3" stroke-linejoin="round" fill="none"/>
+  <!-- Inner geometric facet top left -->
+  <polygon points="24,4 4,24 24,24" fill="#10b981" fill-opacity="0.85"/>
+  <!-- Inner geometric facet top right -->
+  <polygon points="24,4 44,24 24,24" fill="#06b6d4" fill-opacity="0.95"/>
+  <!-- Inner geometric facet bottom left -->
+  <polygon points="24,24 4,24 24,44" fill="#059669" fill-opacity="0.9"/>
+  <!-- Inner geometric facet bottom right -->
+  <polygon points="24,24 44,24 24,44" fill="#0284c7" fill-opacity="0.8"/>
+  <!-- Central subtle spark -->
+  <circle cx="24" cy="24" r="3" fill="#ffffff"/>
+</svg>

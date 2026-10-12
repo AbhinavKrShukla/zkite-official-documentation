@@ -1,0 +1,55 @@
+---
+title: ZKite
+description: Build fast, native Android applications using modern Python with instant hot reload.
+template: splash
+hero:
+  tagline: The modern framework for building high-performance, native Android apps in pure Python. No WebViews, no heavy runtime bloat—just clean declarative code and instant hot reload.
+  image:
+    file: ../../assets/zkite-logo.png
+  actions:
+    - text: Get Started
+      link: /getting-started/overview/
+      icon: right-arrow
+      variant: primary
+    - text: Widget Reference
+      link: /widgets/
+      icon: puzzle
+      variant: secondary
+    - text: View on GitHub
+      link: https://github.com/abhinav/zkite
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why ZKite?
+
+<CardGrid stagger>
+  <Card title="100% Native Rendering" icon="seti:android">
+    No WebViews, Electron wrappers, or browser DOM. ZKite draws interfaces directly through Android's high-performance native canvas and UI subsystem.
+  </Card>
+  <Card title="Instant Hot Reload" icon="rocket">
+    Iterate at the speed of thought. Edit your Python source files on your computer and see updates appear immediately on your connected physical Android phone or emulator.
+  </Card>
+  <Card title="Declarative Python UI" icon="seti:python">
+    Write familiar, elegant Python. Compose your screens using intuitive layout widgets (`Column`, `Row`, `Grid`, `Stack`) and reactive application state stores.
+  </Card>
+  <Card title="Production APK & AAB Ready" icon="document">
+    Package self-contained release builds (`.apk` and `.aab`) signed with standard Android release keys. End-users install a normal app—they don't need Python or pip.
+  </Card>
+</CardGrid>
+
+## Quick Start in 60 Seconds
+
+```bash
+# 1. Install ZKite in an isolated environment
+pip install zkite==1.0.0
+
+# 2. Scaffold a new Android application
+zkite new my_mobile_app
+cd my_mobile_app
+
+# 3. Connect your Android phone and start hot reload
+zkite dev
+```
