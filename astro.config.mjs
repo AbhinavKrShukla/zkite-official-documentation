@@ -17,6 +17,19 @@ export default defineConfig({
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/abhinav/zkite' },
 			],
+			head: [
+				{
+					tag: 'script',
+					attrs: {
+						src: 'https://analytics.leftnote.com/js/pa-8LfbKhURkHSl2ChFJg0my.js',
+						async: true,
+					},
+				},
+				{
+					tag: 'script',
+					content: `window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init();`,
+				},
+			],
 			sidebar: [
 				{
 					label: 'Getting Started',
