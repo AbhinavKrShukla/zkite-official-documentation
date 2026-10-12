@@ -19,6 +19,41 @@ export default defineConfig({
 			],
 			head: [
 				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image',
+						content: 'https://zkite.cloud/og-image.png',
+					},
+				},
+				{
+					tag: 'meta',
+					attrs: {
+						name: 'twitter:image',
+						content: 'https://zkite.cloud/og-image.png',
+					},
+				},
+				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image:width',
+						content: '1200',
+					},
+				},
+				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image:height',
+						content: '630',
+					},
+				},
+				{
+					tag: 'meta',
+					attrs: {
+						name: 'twitter:image:alt',
+						content: 'ZKite — Build Native Android Apps in Pure Python with Instant Hot Reload',
+					},
+				},
+				{
 					tag: 'script',
 					attrs: {
 						src: 'https://analytics.leftnote.com/js/pa-8LfbKhURkHSl2ChFJg0my.js',
