@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://zkite.dev',
+	site: 'https://zkite.cloud',
 	integrations: [
 		starlight({
 			title: 'ZKite',
