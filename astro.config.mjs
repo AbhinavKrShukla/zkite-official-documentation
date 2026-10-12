@@ -15,7 +15,7 @@ export default defineConfig({
 			favicon: '/zkite-logo.png',
 			customCss: ['./src/styles/custom.css'],
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/abhinav/zkite' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/AbhinavKrShukla/zkite' },
 			],
 			head: [
 				{
