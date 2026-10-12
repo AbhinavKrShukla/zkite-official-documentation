@@ -125,13 +125,17 @@ Python has to run on the mobile device, so we heavily optimized the native engin
 ## Quick Start in 60 Seconds
 
 ```bash
-# 1. Install ZKite in an isolated environment
-pip install zkite==1.0.0
+# 1. Install ZKite 1.1.0 in an isolated Python 3.14 environment
+pip install zkite==1.1.0
 
-# 2. Scaffold a new Android application
+# 2. Scaffold a new Android application (creates main.py, app.json, assets/)
 zkite new my_mobile_app
 cd my_mobile_app
 
 # 3. Connect your Android phone and start hot reload
 zkite dev
 ```
+
+:::note[Need Version 1.0.0?]
+For projects targeting the previous stable release, install via `pip install zkite==1.0.0`. Read our [What's New in 1.1.0 & Migration Guide](/getting-started/migration-1-1/) or browse the complete [ZKite 1.0.0 Documentation Archive](/v1-0/overview/).
+:::

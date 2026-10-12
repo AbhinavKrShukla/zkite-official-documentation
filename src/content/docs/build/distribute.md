@@ -56,7 +56,7 @@ zkite build aab \
 
 When releasing a new version of an existing application:
 
-1. **Keep `package` identical** in `pyproject.toml` (e.g. `com.company.app`).
-2. **Increment `version_code`** (e.g. from `100` to `101`). Android will reject any install where the version code is lower than or equal to the existing installation.
+1. **Keep `package` identical** in `app.json` (or `pyproject.toml` in legacy projects).
+2. **Increment `version_code`** (e.g. from `1` to `2`). Android will reject any install where the version code is lower than or equal to the existing installation.
 3. **Update `version`** string (e.g. `"1.1.0"`).
 4. **Sign with the exact same key**: Android cryptographically checks that the update signature matches the installed signature.

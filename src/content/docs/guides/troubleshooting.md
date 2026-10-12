@@ -3,49 +3,76 @@ title: Troubleshooting & Diagnostics
 description: Comprehensive stage-by-stage troubleshooting tables for installation, build, device, and UI issues.
 ---
 
-When encountering issues, first identify which stage failed: **installation**, **build**, **device connection**, **runtime startup**, or **interaction**.
+When encountering issues, first identify which stage failed: **installation**, **build & packaging**, **device connection**, **runtime startup**, or **interaction**.
 
 ---
 
-## 1. Installation & Command Issues
+## 1. Installation & Command Problems
 
-| Symptom | Cause | Solution |
-| :--- | :--- | :--- |
-| `zkite: command not found` | Virtual environment not active or scripts folder not in PATH | Activate your virtual environment (`source .venv/bin/activate` or `.\.venv\Scripts\Activate.ps1`) or call `.venv/bin/zkite` directly. |
-| `No matching distribution found` | Unsupported Python minor version | Verify `python --version` outputs CPython 3.14. Recreate the virtual environment with Python 3.14. |
-| `PowerShell activation script disabled` | Windows ExecutionPolicy restriction | Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`. |
-| Wrong CLI release runs | Global pip path takes precedence | Verify with `which zkite` or `Get-Command zkite` to ensure you are executing the local `.venv` binary. |
-
----
-
-## 2. Build & Packaging Issues
-
-| Symptom | Cause | Solution |
-| :--- | :--- | :--- |
-| `No project or no main.py found` | Executed command outside the project directory | `cd` into the directory containing `pyproject.toml` and `main.py`. |
-| Dependency cannot be resolved | Incompatible C-extension wheel | Ensure third-party packages in `[project].dependencies` are pure-Python wheels compatible with Android. |
-| Module missing only on Android | Dynamic standard library import | Build or run with `--no-prune-stdlib` to retain the complete standard library. |
-| Images fail to display | Subfolder staging limitation | Keep image assets directly in the project root beside `main.py` and specify explicit dimensions (`w-24 h-24`). |
-| Launcher icon did not update | Launcher resource caching | Restart `zkite dev` or rerun `zkite run`. Launchers often cache icons—check the Android App Info settings screen. |
+| Symptom | Checks and Next Action |
+| :--- | :--- |
+| `zkite` is not found | Use the environment's explicit executable path (`.venv/bin/zkite` or `.\.venv\Scripts\zkite.exe`); verify installation with that environment's pip. |
+| No matching distribution | Verify CPython 3.14, 64-bit architecture (x86_64), and that your wheel matches your host OS. |
+| Wrong release runs | Compare `zkite --version` with `python -m pip show zkite zkite-framework zkite-payload`. Inspect which executable your shell resolves. |
+| Payload missing | Install the complete `zkite` distribution; do not copy only the CLI executable elsewhere without its payload dependencies. |
+| Python version mismatch | Ensure CPython 3.14 is active. Recreate the virtual environment if necessary and verify with `zkite doctor`. |
+| PowerShell activation blocked | Run `.venv\Scripts\python.exe` and `.\.venv\Scripts\zkite.exe` directly without calling `Activate.ps1`. |
 
 ---
 
-## 3. Device & Connection Issues
+## 2. Build & Packaging Problems
 
-| Symptom | Cause | Solution |
-| :--- | :--- | :--- |
-| Device shows `unauthorized` in `adb devices` | Computer RSA key not accepted | Unlock your phone and tap **"Always allow from this computer"** on the USB prompt. |
-| Multiple devices detected | Ambiguous target | Pass `--serial <SERIAL_ID>` or export `ANDROID_SERIAL=<SERIAL_ID>`. |
-| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | Signing key mismatch with existing installation | Either build with the original signing key or uninstall the previous version if testing locally. |
+| Symptom | Checks and Next Action |
+| :--- | :--- |
+| No project or no `main.py` | Run commands from the project directory containing `app.json` and `main.py`. |
+| Dependency cannot be resolved | Inspect the named dependency in `requirements.txt` or `pyproject.toml`; verify pure-Python Android compatibility. |
+| Module missing only in the app | Check declared dependencies and top-level helper `.py` files; try `--no-prune-stdlib` for dynamic imports. |
+| Local image missing | Verify format (PNG/JPEG), relative path (`assets/images/logo.png` or root), and explicit layout dimensions (`w-24 h-24`). |
+| Remote HTTPS image missing | Ensure `"permissions": ["INTERNET"]` in `app.json`, valid HTTPS URL with TLS, and file size under 2 MiB. |
+| Nested Python module missing | Automatic staging packages top-level `.py` files and `assets/`. Other nested application packages are not automatically staged. |
+| App icon did not change | Check `android.icon` in `app.json`, verify real square PNG, and restart `zkite dev` or rerun `zkite run`. |
+| AAB will not install with `adb` | An AAB is for Google Play distribution. Build an APK (`zkite build apk`) for direct `adb install`. |
 
 ---
 
-## 4. UI & Rendering Issues
+## 3. Device & Connection Problems
 
-| Symptom | Cause | Solution |
-| :--- | :--- | :--- |
-| Text is invisible or missing | Passing text as first argument | Remember the **class-string-first** convention: `Text("text-white", "Hello")`, not `Text("Hello")`. |
-| State changes but UI does not update | Mutating fields directly | Always mutate state using `store.update(field=new_val)` to trigger observer notifications. |
-| ScrollView does not scroll | Unbounded viewport | Give the `ScrollView` bounded dimensions (e.g., `flex-1` or an explicit height `h-64`). |
-| Status bar stays white in dark mode | Missing `SystemBars` wrapper | Wrap your root screen widget in `SystemBars(..., status_color="#0b0f19", status_icons="light")`. |
-| Virtual list rows overlap or clip | Mismatched `item_height` | Ensure `item_height` matches the exact pixel/dp height of rows produced by your builder. |
+| Symptom | Checks and Next Action |
+| :--- | :--- |
+| Unauthorized device | Unlock the phone screen and accept the USB debugging authorization prompt. |
+| Multiple devices, no selection | In an interactive terminal, use arrow keys; in scripts or CI, pass `--serial <SERIAL>`. |
+| Wrong device chosen | Inspect explicit `--serial` and `ANDROID_SERIAL`; an explicit `--serial` takes precedence. |
+| Update rejected by Android | Compare package ID, signing key, SDK, architecture, and version code. Never decrease `version_code`. |
+| Signature mismatch | Locate the original signing key; a new random key cannot update an app signed with another identity. |
+| App appears twice in launcher | Distinguish the development preview (with dev label) from the standalone app. |
+
+:::warning[Do Not Blindly Uninstall]
+Do not automatically uninstall an existing app to hide an update failure. Uninstalling erases local user data and SQLite databases. Decide whether the installation is disposable before choosing that recovery path.
+:::
+
+---
+
+## 4. UI & Rendering Problems
+
+| Symptom | Checks and Next Action |
+| :--- | :--- |
+| Text label is missing | Check the class-string-first constructor convention: `Text("text-white text-base", "Label")`. |
+| State changes but screen does not | Always use `store.update(field=value)` to trigger observer notifications. |
+| Text input resets while typing | Ensure the field's `value` is connected to a store and maintain a stable `key`. |
+| Screen does not scroll | Bound the scrolling region using `flex-1` / `min-h-0` or explicit height. |
+| List rows overlap or clip | Verify fixed `item_height` against actual row content. |
+| Select will not open or close | If `open` is explicit, update it in the corresponding callbacks. |
+| Exit animation is invisible | Keep the widget present until its animation completion handler executes. |
+| Top or bottom bar stays white | Wrap root screen in `SystemBars` and provide supported hex colors. |
+| Icon contrast is poor | `light` and `dark` refer to icons, not backgrounds. Use `status_icons="auto"` or test explicit choices. |
+| Blank screen after resume | Verify lifecycle handlers; inspect device logs with `zkite run --logs`. |
+
+---
+
+## Submitting a Useful Bug Report
+
+When reporting an issue:
+1. Include exact ZKite distribution versions (`python -m pip show zkite zkite-framework zkite-payload`).
+2. Host OS, Python version, target device model, and Android OS version.
+3. State whether the issue occurs in preview (`zkite dev`), standalone (`zkite run`), or both.
+4. Provide the minimal reproducible code sample along with sanitized terminal logs.

@@ -13,47 +13,55 @@ On your physical Android phone:
 2. Tap **Build Number** 7 times until you see the prompt *"You are now a developer!"*.
 3. Go back to **Settings** > **System** (or **Developer options**).
 4. Turn on **USB Debugging**.
-5. *(Optional but recommended)*: Enable **Stay Awake** while charging to keep the screen active during development sessions.
+5. Keep the screen unlocked for the initial connection authorization.
 
 ## 2. Connect and Authorize USB Debugging
 
-1. Plug your phone into your computer using a quality data cable (a charging-only cable will not show data transport).
-2. Unlock your phone.
-3. A modal dialog will appear on your phone:
-   > **Allow USB debugging?**
-   > Computer's RSA key fingerprint: `xx:xx:...`
-4. Check **"Always allow from this computer"** and tap **Allow**.
+1. Plug your phone into your computer using a data-capable USB cable (a charging-only cable will not establish transport).
+2. Unlock your phone screen.
+3. Accept the debugging authorization prompt for your computer (check **Always allow from this computer**).
 
-## 3. Verify Connection in the Terminal
+## 3. Verify Connection with `adb devices -l`
 
-Run the following command in your terminal:
+Run `adb devices -l` and inspect the reported state:
 
-```bash
-adb devices
-```
+| State | Meaning and Next Action |
+| :--- | :--- |
+| `device` | Connected and authorized; ready for development. |
+| `unauthorized` | Unlock the phone and accept the USB authorization prompt. |
+| `offline` | Transport not ready; check the cable, reconnect, and test again. |
+| *No entry* | Check the cable, USB connection mode (File Transfer/MTP), Linux `udev` permissions or Windows driver, and platform-tools installation. |
 
-You should see your device listed as `device`:
+## 4. Interactive Device Picker vs. `--serial`
 
-```text
-List of devices attached
-35291FDJ2000AB    device
-```
+### Single Device
+With one authorized device connected, `zkite run` and `zkite dev` select it automatically without prompting.
 
-:::caution[Troubleshooting Device States]
-* If it says `unauthorized`: Unlock your phone and accept the USB authorization dialog.
-* If the list is empty:
-  * On Linux: Ensure your user has permissions for `/dev/bus/usb` (add appropriate `udev` rules).
-  * On Windows: Open Device Manager and install your phone manufacturer's ADB USB driver.
-:::
+### Multiple Devices (Interactive Menu)
+With multiple authorized devices connected in an interactive terminal:
+* A selection menu displays connected device model names and serials.
+* Use **Up / Down arrow keys** to navigate.
+* Press **Enter** to connect.
+* Press **Esc** or **Ctrl+C** to cancel.
+*(Do not type numbers or yes/no).*
 
-## 4. Selecting Multiple Devices
-
-If you have both a physical phone and an emulator running simultaneously:
+### Explicit CLI Selection & CI
+In automated scripts, CI pipelines, or non-interactive terminals, pass the device serial explicitly:
 
 ```bash
-# Explicitly choose target device using its serial ID
-zkite dev --serial 35291FDJ2000AB
+# Pass serial flag explicitly
+zkite run --serial DEVICE_SERIAL
+zkite dev --serial DEVICE_SERIAL
 
-# Or set an environment variable
-export ANDROID_SERIAL=35291FDJ2000AB
+# Or use the environment variable
+export ANDROID_SERIAL=DEVICE_SERIAL
+```
+
+An explicit `--serial` always takes precedence over `ANDROID_SERIAL`.
+
+### Custom ADB Path
+If multiple copies of adb are installed on your machine, pass `--adb`:
+
+```bash
+zkite dev --adb /path/to/platform-tools/adb
 ```

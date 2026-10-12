@@ -1,61 +1,76 @@
 ---
 title: Development Cycle & Hot Reload
-description: Master the difference between development previews and standalone runs, hot reload boundaries, and debugging logs.
+description: Master the difference between development previews and standalone runs, hot reload boundaries, and error behaviors.
 ---
 
-ZKite offers two complementary execution modes: **Development Preview** (`zkite dev`) and **Standalone Run** (`zkite run`).
+ZKite offers two distinct workflows: **Development Preview** (`zkite dev`) for instant feedback during coding, and **Standalone Run** (`zkite run`) for independent app testing.
 
-## Preview vs. Standalone Run
+## Workflow Comparison
 
-| Command | Purpose | Hot Reload? | Works Offline / Detached? |
+| Workflow | What It Is For | Requires Host Server? | Hot Reload? |
 | :--- | :--- | :--- | :--- |
-| `zkite dev` | Fast development iteration with live code watching | **Yes** (Instant) | No (Requires host connection) |
-| `zkite run` | Full standalone production-like build on phone | No | **Yes** (Independent APK) |
+| `zkite dev` | Fast source-edit feedback and live synchronization on a connected device. | **Yes** (Runs while editing) | **Yes** (< 90ms) |
+| `zkite run` | Builds, signs, installs, and launches a self-contained standalone app. | **No** (Runs independently) | No |
+| `zkite build apk` | Generates installable `.apk` binary files for testing. | No | No |
+| `zkite build aab` | Generates production `.aab` bundles for Google Play distribution. | No | No |
 
-### 1. `zkite dev` (The Fast Lane)
+---
+
+## 1. Development Preview (`zkite dev`)
 
 When you run `zkite dev`:
-1. ZKite installs a dedicated **Development Preview** APK on your authorized device.
-2. It sets up an encrypted communication bridge over `adb`.
-3. It watches your project directory for Python source file updates.
-4. As soon as you save a `.py` file, ZKite transmits the changed code module and re-renders the active widget tree on the device.
+1. ZKite prepares and installs a preview build on the selected device under a **separate development package identity**.
+2. It displays your project icon with a development label. Having two launcher entries on your phone (the dev preview and the standalone app) is expected.
+3. It watches your supported Python source files and synchronizes changes over ADB.
+4. Stop the session at any time with **Ctrl+C**.
 
 ```bash
-# Start development preview
+# Start live development preview
 zkite dev
+
+# Use custom port if default (8765) is busy
+zkite dev --port 9000
 ```
 
-### 2. `zkite run` (Standalone Testing)
+---
+
+## 2. Standalone Run (`zkite run`)
 
 When you run `zkite run`:
-1. ZKite bundles your code and standard library into a self-contained APK signed with your local development keystore.
-2. It installs and launches the app directly on the phone.
-3. You can disconnect your phone and take it with you—the app runs completely autonomously.
+1. ZKite compiles an APK tailored for your device architecture, signs it with the local project key (`.zkite/debug.pem`), installs it, and launches it.
+2. The application is completely autonomous: you can unplug the USB cable and run the app anywhere.
 
 ```bash
+# Build, install, and launch standalone app
 zkite run
+
+# Follow Android system logs and Python stdout in your terminal
+zkite run --logs
 ```
 
 ---
 
 ## What Hot Reload Does and Does Not Reload
 
-Understanding the boundaries of hot reload will save you time:
+Understanding reload boundaries avoids confusion during development:
 
-* **Instantly Hot-Reloaded**:
-  * Changes to UI layout, styling classes, and widget hierarchies.
-  * Logic inside event callbacks and helper functions in top-level `.py` files.
-  * State store definitions.
-* **Requires Restarting `zkite dev`**:
-  * Adding or removing dependencies in `pyproject.toml`.
-  * Replacing app icon files (`icon.png`).
-  * Changes to native configuration or backend settings.
+### Automatically Synchronized via Hot Reload:
+* Layout, styling utility classes, and widget hierarchy modifications.
+* Event callbacks and helper functions in top-level `.py` modules.
+* State values: compatible store fields retain their values across reloads; newly added fields take their declared defaults.
 
-## Viewing Device Logs
+### Requires Restarting `zkite dev`:
+* Changes to `app.json` (package identifier, permissions, app label, build settings).
+* Adding or modifying dependencies in `requirements.txt` or `pyproject.toml`.
+* Replacing the app launcher icon file.
+* Adding new files to `assets/`.
 
-To view Python print statements, tracebacks, and Android runtime logs directly in your terminal:
+---
 
-```bash
-# Follow logs during a standalone run
-zkite run --logs
-```
+## Error Handling: Dev Preview vs. Standalone
+
+ZKite 1.1.0 provides differentiated error handling between development and release:
+
+* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or event callbacks display detailed, interactive on-screen error overlays with Python tracebacks.
+* **In Standalone APK / AAB**: Uncaught exceptions display a clean, user-friendly restart screen rather than exposing raw developer tracebacks on the mobile display.
+* **Diagnostic Logs**: In all modes, full tracebacks and diagnostic logs are written to Android logcat and can be streamed in your terminal using `zkite run --logs`.

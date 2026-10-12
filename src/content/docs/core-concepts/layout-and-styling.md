@@ -1,21 +1,26 @@
 ---
 title: Layout & Styling
-description: Layout containers, utility class styling conventions, spacing scales, and screen sizing in ZKite.
+description: Layout containers, utility class styling conventions, spacing scales, and scroll constraints in ZKite.
 ---
 
-ZKite uses an ergonomic, utility-class-driven layout system. Instead of writing separate XML layout files or CSS style sheets, you apply standard utility names as the first argument to each widget.
+ZKite uses an ergonomic, utility-class-driven layout system. Instead of writing separate XML layout files or web stylesheets, you apply utility names as the first argument to each widget.
+
+While styling resembles a supported subset of Tailwind utilities, ZKite is **not a browser CSS engine**. Utilities are rendered directly by ZKite's native Android graphics pipeline.
+
+---
 
 ## Container Selection
 
-Choosing the correct container is essential for predictable Android layouts:
+Choosing the correct container ensures predictable Android layout and performance:
 
-| Container | Behavior | Typical Use Case |
+| Container | Use It For | Main Consideration |
 | :--- | :--- | :--- |
-| `Column` | Vertically stacks child widgets. | Forms, vertical content, settings lists. |
-| `Row` | Horizontally arranges child widgets. | Header bars, stat counters, buttons side-by-side. |
-| `Grid` | Two-dimensional matrix of cells. | Photo galleries, dashboard cards, calculators. |
-| `Stack` | Layers children on top of each other along the Z-axis. | Floating action buttons, badges over icons, card overlays. |
-| `ScrollView` | Adds scrolling to content exceeding the screen height or width. | Long articles, scrolling feeds, tall forms. |
+| `Column` | Vertical groups of controls or sections. | Give growing content a bounded available space. |
+| `Row` | Horizontal groups, action bars, label/value pairs. | Consider wrapping or available width on small screens. |
+| `Grid` | Repeated items in explicit columns. | Define a suitable column count and gap. |
+| `Stack` | Overlapping elements along the Z-axis. | Later children appear above earlier children. |
+| `ScrollView` | A finite collection that can exceed the viewport. | Bound the viewport; otherwise it may simply grow without scrolling. |
+| `List` | Many fixed-height repeated rows. | Declare an accurate row height and stable identity. |
 
 ```python
 from zkite import Column, Row, Text, Button
@@ -28,29 +33,34 @@ def Header():
     )
 ```
 
-## Common Utility Classes
+---
 
-ZKite supports familiar utility abbreviations for layout, flexbox, spacing, and typography:
+## Density-Aware Coordinate System
 
-* **Flexbox & Sizing**:
-  * `flex-1` (expand to fill available space)
-  * `w-full`, `h-full`, `w-auto`, `h-auto`
-  * `items-center`, `items-start`, `items-end`
-  * `justify-between`, `justify-center`, `justify-start`, `justify-end`
-* **Spacing**:
-  * Padding: `p-2`, `p-4`, `p-6`, `px-4`, `py-2`
-  * Margin: `m-2`, `m-4`, `mb-6`, `mt-4`
-  * Gap between children: `gap-2`, `gap-4`, `gap-6`
-* **Colors & Borders**:
-  * Backgrounds: `bg-slate-900`, `bg-emerald-500`, `bg-white`, `bg-transparent`
-  * Borders: `border`, `border-slate-800`, `rounded-md`, `rounded-xl`, `rounded-full`
-* **Typography**:
-  * Sizes: `text-xs`, `text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`, `text-3xl`
-  * Weights: `font-normal`, `font-medium`, `font-semibold`, `font-bold`
-  * Colors: `text-white`, `text-slate-400`, `text-emerald-400`, `text-rose-500`
+Spacing and layout use ZKite's **density-aware coordinate system**. Layout values are independent of physical device screen pixel density. Always test your interfaces on both narrow screens and larger devices, and check layout behavior when the Android soft keyboard appears.
+
+---
 
 ## Scroll Sizing & Constraints
 
-:::caution[Bounding Scroll Views]
-When nesting a `ScrollView` inside a `Column`, make sure the `ScrollView` has bounded dimensions (e.g., `flex-1` or explicit height like `h-64`). An unbounded scroll container inside an unconstrained flex layout can cause scroll calculation anomalies.
-:::
+A scrolling container needs a constrained viewport:
+
+* In a vertical `Column`, a growing content region commonly uses `flex-1`; combining this with `min-h-0` allows the region to shrink within the available screen height.
+* If a container expands indefinitely to fit every child, there is nothing left to scroll inside its own bounds.
+* For horizontal scrolling, pass `horizontal=True` to `ScrollView`:
+  ```python
+  ScrollView("flex-1 p-4", child1, child2, horizontal=True)
+  ```
+* Choose `ScrollView` for ordinary finite screens; choose `List` for large datasets with predictable fixed row heights.
+
+---
+
+## Styling Configuration (`zkite.tailwind.json`)
+
+New projects created with `zkite new` include `zkite.tailwind.json`. This configuration assists editors and language servers with autocomplete for supported utility classes. Remember that editor suggestions are assistance—only the native backend supported utilities are rendered.
+
+---
+
+## System Theme Consistency
+
+Styling your app with dark background classes (such as `bg-slate-950`) does not automatically tint Android's system status bar or navigation bar. Always wrap your root screen in [`SystemBars`](/widgets/system-bars/) to ensure high-contrast system icons and matching bar backgrounds.

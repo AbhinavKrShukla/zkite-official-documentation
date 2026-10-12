@@ -4,28 +4,44 @@ description: Answers to common developer questions about ZKite architecture, bui
 ---
 
 ### Do I need to run `zkite dev` before `zkite run`?
-No. `zkite run` is a standalone command that compiles, installs, and launches your application directly without requiring a preceding development preview session.
+No. `zkite run` builds, installs, and launches a standalone application by itself without requiring a prior development preview session.
 
-### Does the finished Android app need Python installed on the phone?
-No. ZKite bundles a lightweight CPython 3.14 native runtime directly inside the compiled APK. End-users install your application like any standard Android app from an APK or app store.
+### Does the finished app need Python installed on the phone?
+No. ZKite bundles a lightweight CPython 3.14 native runtime directly inside the application APK. End-users install your application like any standard Android app.
 
-### Is the app a website inside a WebView wrapper?
-No. The default and supported ZKite architecture uses **native Android rendering**. Layouts, views, and touch events are processed directly through native Android UI views, not an embedded web browser.
+### Is the native app a website in a shell?
+No. The default and supported ZKite architecture uses **native Android rendering**. Layouts, views, and touch events are drawn directly through Android hardware-accelerated platform canvas and views, not an embedded web browser or DOM.
 
-### Can I install and use any Python package from PyPI?
-You can use pure-Python packages (e.g. `requests`, `pydantic`, `jinja2`). Packages requiring compiled C extensions specifically compiled for desktop Windows or Linux cannot be copied into an Android environment without Android-specific compilation.
+### Can I use every Python package from PyPI?
+No. You can use compatible pure-Python dependencies (such as `requests`, `pydantic`, `jinja2`). Packages requiring desktop compiled C extensions (like desktop `numpy` or `scipy`) cannot be bundled without Android cross-compilation.
 
 ### Can I organize my project into nested subfolders?
-In ZKite 1.0.0, application source modules and asset images must reside at the root of your project directory beside `main.py` for automatic packaging into the Android build bundle.
+* **For Assets**: Yes! In ZKite 1.1.0, the `assets/` folder is packaged recursively (e.g. `assets/images/logo.png`, `assets/fonts/`).
+* **For Code**: Top-level helper `.py` modules beside `main.py` are packaged automatically. Arbitrary nested Python packages are not automatically staged in this release.
 
-### Why does my phone show both a development app and a normal app?
+### Why is there both a development app and a normal app on my device?
 The development preview (`zkite dev`) uses a distinct package identifier and data sandbox so that active development does not overwrite or corrupt data in your installed standalone app.
 
-### Why do store values reset after closing the app?
-`Store` state is purely in-memory. For values that must persist across app terminations and reboots, write them to local files (such as JSON) or an SQLite database.
+### Why did a store value disappear after restarting the app?
+`@store` state is in-memory process state. Data that must survive app termination and device reboots requires deliberate persistence (e.g. JSON files or SQLite).
 
-### Why does the Android status bar remain white on a dark screen?
-The application's screen background and the Android OS status bar are separate layers. Wrap your root widget in [`SystemBars`](/widgets/system-bars/) with `status_color="#0b0f19"` and `status_icons="light"` to match your theme.
+### Why does the top bar remain white with a dark screen?
+The application's screen background and Android system bars are separate layers. Wrap your root screen widget in [`SystemBars`](/widgets/system-bars/) and configure explicit hex colors.
 
-### Can I build an APK without having a phone plugged in?
-Yes! Use `zkite build apk` or `zkite build aab`. Build commands do not require a connected physical device or emulator.
+### Can I change the battery icon or replace Android navigation?
+No. `SystemBars` styles the backgrounds and icon contrast mode of the surrounding bars; it does not replace the operating system's indicators or system navigation gestures.
+
+### Why does changing an icon not hot reload immediately?
+App launcher icons are Android package resources compiled into the APK manifest. Restart `zkite dev` or rerun `zkite run` so the preview or standalone APK is rebuilt with the new icon.
+
+### Can I build without connecting an Android phone?
+Yes. Both `zkite build apk` and `zkite build aab` run completely offline without requiring a connected physical device or emulator.
+
+### Can I publish my finished mobile app to PyPI?
+No. Pip distributes the desktop developer framework. Mobile end-users receive an APK or an Android App Bundle distributed through an Android app store.
+
+### Should I upgrade only `zkite-framework`?
+No. Always keep the CLI (`zkite`), the framework (`zkite-framework`), and the runtime payload (`zkite-payload`) at the exact same version:
+```bash
+pip install zkite==1.1.0
+```

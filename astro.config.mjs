@@ -72,6 +72,7 @@ export default defineConfig({
 						{ label: 'What ZKite Does', slug: 'getting-started/overview' },
 						{ label: 'Supported Environments', slug: 'getting-started/supported-environments' },
 						{ label: 'Installation', slug: 'getting-started/installation' },
+						{ label: "What's New in 1.1.0 & Migration", slug: 'getting-started/migration-1-1' },
 						{ label: 'Connect an Android Device', slug: 'getting-started/connect-device' },
 						{ label: 'Create Your First Project', slug: 'getting-started/first-project' },
 						{ label: 'Development Cycle & Hot Reload', slug: 'getting-started/development-cycle' },
@@ -146,7 +147,7 @@ export default defineConfig({
 				{
 					label: 'Build & Distribution',
 					items: [
-						{ label: 'Configuration (pyproject.toml)', slug: 'build/configuration' },
+						{ label: 'Configuration Reference (app.json & TOML)', slug: 'build/configuration' },
 						{ label: 'CLI Command Reference', slug: 'build/commands' },
 						{ label: 'Build, Sign, and Distribute', slug: 'build/distribute' },
 					],
@@ -160,6 +161,12 @@ export default defineConfig({
 						{ label: 'Learning Exercises', slug: 'guides/exercises' },
 						{ label: 'Frequently Asked Questions', slug: 'guides/faq' },
 						{ label: 'Glossary', slug: 'guides/glossary' },
+					],
+				},
+				{
+					label: 'Version 1.0.0 (Archive)',
+					items: [
+						{ label: 'ZKite 1.0.0 Full Documentation', slug: 'v1-0/overview' },
 					],
 				},
 			],

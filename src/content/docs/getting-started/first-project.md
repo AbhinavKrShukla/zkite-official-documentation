@@ -1,79 +1,122 @@
 ---
 title: Create Your First Project
-description: Scaffold a fresh ZKite mobile application and understand the project files and architecture.
+description: Scaffold a fresh ZKite mobile application and understand project files, app.json, and asset packaging.
 ---
 
 Generate a new mobile project by running `zkite new` followed by your desired project name.
 
 ```bash
-zkite new hello_zkite
-cd hello_zkite
+# Create a new directory and scaffold project
+zkite new myapp
+cd myapp
+
+# Or scaffold inside an existing empty directory
+zkite new myapp .
 ```
 
-This creates a ready-to-run mobile app structure.
+Project names may contain letters, digits, underscores, and hyphens, but cannot start with a digit. `zkite new` refuses to overwrite existing scaffold files.
 
-## Project Structure
+---
+
+## Project Structure (1.1.0)
 
 ```text
-hello_zkite/
-├── .gitignore          # Ignores build artifacts and key files
-├── pyproject.toml      # Project configuration and Android packaging settings
-├── zkite.config.json   # Styling tokens and utility configurations
-└── main.py             # Your application entry point and UI tree
+myapp/
+├── main.py             # Application entry point containing top-level view()
+├── app.json            # App identity, version, backend, and Android settings
+├── assets/             # Recursively packaged app resources (images, fonts, JSON)
+├── zkite.tailwind.json # Styling and editor class configuration
+└── .gitignore          # Excludes build output, caches, and development keys
 ```
 
-### 1. `main.py` (Application Code)
+### Project Files Overview
 
-Here is a standard starter `main.py`:
+| File / Directory | Purpose | Handling |
+| :--- | :--- | :--- |
+| `main.py` | Application entry module containing the top-level `view`. | Edit and commit. |
+| `app.json` | App identity, version, backend, and Android configuration. | Edit and commit. |
+| `requirements.txt` | Dependency declarations for pip (or `pyproject.toml` for uv). | Edit and commit as needed. |
+| `assets/` | **Recursively packaged app resources**; created by scaffold. | Commit intended app assets. |
+| `zkite.tailwind.json` | Styling/editor utility class configuration. | Keep with project. |
+| `.gitignore` | Excludes generated outputs, local virtual environments, and keys. | Commit. |
+| `.zkite/` | Local development state, preview cache, and debug signing key (`debug.pem`). | Keep locally; do not commit. |
+| `dist/` | Built release artifacts (`.apk` and `.aab`). | Build output. |
+| Top-level `.py` files | Helper application modules beside `main.py`. | Edit and commit. |
+| Top-level images | Top-level PNG/JPG/JPEG files packaged beside `main.py`. | Commit. |
 
-```python
-from zkite import Store, Column, Text, Button, SystemBars
+---
 
-# Define observable reactive state
-class AppState(Store):
+## 1. `main.py` (Application Code)
+
+The entry module provides a top-level function named `view`. It returns the widget tree describing the current interface:
+
+```python title="main.py"
+from zkite import store, Column, Text, Button, SystemBars
+
+# 1. Observable application state
+@store
+class CounterStore:
     count: int = 0
 
-state = AppState()
+state = CounterStore()
 
 def increment():
     state.update(count=state.count + 1)
 
-def App():
+# 2. Top-level view entry discovered by the framework
+def view():
     return SystemBars(
         Column(
-            "flex-1 justify-center items-center p-6 bg-slate-900 gap-4",
-            Text("text-2xl font-bold text-white", "Hello from ZKite!"),
-            Text("text-lg text-emerald-400", f"Taps: {state.count}"),
+            "flex-1 justify-center items-center p-6 bg-slate-950 gap-4",
+            Text("text-3xl font-extrabold text-white", "Hello, ZKite!"),
+            Text("text-lg text-emerald-400 font-medium", f"Taps: {state.count}"),
             Button(
-                "px-6 py-3 bg-emerald-500 rounded-xl font-semibold text-white",
-                Text("text-white font-bold", "Tap Me"),
+                "px-6 py-3 bg-emerald-500 rounded-xl font-bold text-white",
+                Text("text-white text-base", "Tap Me"),
                 on_tap=increment,
             ),
         ),
-        status_color="#0f172a",
-        navigation_color="#0f172a",
+        status_color="#020617",
+        navigation_color="#020617",
         status_icons="light",
         navigation_icons="light",
     )
 ```
 
-### 2. `pyproject.toml` (Configuration)
+:::note[Constructor Conventions]
+Most widgets take a **class string first**, followed by their children or visible content. This includes `Text` and `Button`: their first positional string is styling, not the displayed label. `SystemBars` is a deliberate exception whose first argument is the screen widget it wraps.
+:::
 
-```toml
-[project]
-name = "hello-zkite"
-version = "0.1.0"
-dependencies = []
+---
 
-[tool.zkite]
-backend = "native"
+## 2. `app.json` (Configuration)
 
-[tool.zkite.android]
-package_id = "com.example.hellozkite"
-app_name = "Hello ZKite"
-# icon = "icon.png"
+All application settings in ZKite 1.1.0 come from `app.json`:
+
+```json title="app.json"
+{
+  "name": "myapp",
+  "version": "0.1.0",
+  "backend": "native",
+  "android": {
+    "package": "com.yourcompany.myapp",
+    "label": "My App",
+    "version_code": 1,
+    "permissions": ["INTERNET"],
+    "icon": "assets/icon.png"
+  }
+}
 ```
 
-:::important[Packaging Boundary & Flat File Staging]
-In ZKite 1.0.0, application source files and packaged image assets must be placed in the **project root directory** beside `main.py`. Nested subfolders are not automatically bundled into the Android APK staging root during builds.
+:::tip[Legacy pyproject.toml Support]
+In ZKite 1.0.0, configuration lived in `pyproject.toml`. If `app.json` is absent, ZKite falls back to legacy TOML settings. When `app.json` exists, it takes precedence and legacy TOML app settings are ignored.
 :::
+
+---
+
+## 3. Packaging Boundary & Assets
+
+* **`assets/` Directory**: The entire `assets/` directory is packaged recursively. You can place icons, illustrations, and images in nested folders like `assets/images/logo.png` and reference them directly in `Image` widgets.
+* **Symbolic Links**: Symbolic links inside `assets/` are rejected.
+* **Top-level files**: Helper `.py` files and root image assets beside `main.py` are also staged.
+* **Never commit keys**: Never place private signing keys, API secrets, or server credentials in `assets/`.

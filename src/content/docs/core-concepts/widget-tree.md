@@ -3,16 +3,18 @@ title: Declarative UI & Widget Tree
 description: Understand how ZKite describes user interfaces, widget constructor conventions, and stable identity keys.
 ---
 
-ZKite applications are built declaratively. You do not manually instantiate Android `View` objects or manipulate DOM elements. Instead, you compose a **Widget Tree** that describes what the screen should look like for a given application state.
+ZKite applications are built declaratively. You do not manually instantiate Android `View` objects or manipulate browser DOM elements. Instead, your entry module exports a top-level function named `view` that returns a **Widget Tree** describing what the interface should look like for the current state.
 
-## The Widget Tree Hierarchy
+---
 
-Your root application component returns a hierarchy of widgets:
+## The `view` Entry Point & Hierarchy
 
-```python
+The framework automatically discovers your top-level `view` function:
+
+```python title="main.py"
 from zkite import Column, Row, Text, Icon, Button
 
-def Screen():
+def view():
     return Column(
         "flex-1 p-4 bg-slate-950",
         Row(
@@ -29,34 +31,71 @@ def Screen():
     )
 ```
 
-## The Class-String-First Convention
+:::tip[No Need for App.run()]
+An ordinary ZKite app does not need to call `App.run()`. The exported `App` type is provided for specialized test harnesses or integration, but is not needed in scaffolded projects.
+:::
 
-Notice how widgets in ZKite are constructed:
+---
 
-:::tip[Core Rule: First Positional Argument is the Class String]
-In almost all ZKite widgets, the **first positional argument** is a utility class string that controls styling, sizing, and layout:
+## Constructor Conventions: Class-String-First
+
+Most widgets follow a strict constructor convention:
+
+:::important[Class String is the First Positional Argument]
+Most widgets take their **class string first**, followed by children or visible content:
 
 ```python
-# First argument is layout/styling classes, followed by children or content:
-Text("text-lg font-bold text-white", "Headline")
+# First positional argument is styling classes:
+Text("text-lg font-bold text-white", "Visible Headline")
+Button("px-4 py-2 bg-blue-600 rounded-lg", Text("text-white", "Click Me"), on_tap=action)
 Column("flex-1 p-4 gap-2", child1, child2)
 ```
 
-Omitting the class string or passing visible text as the first argument will treat your text as styling classes, causing rendering issues.
+Passing visible text as the first argument treats that text as styling classes, causing rendering issues or missing labels.
+
+**Exception**: `SystemBars` is a deliberate exception where the first positional argument is the screen widget it wraps:
+```python
+SystemBars(screen_widget, status_color="#000000")
+```
 :::
+
+---
 
 ## Widget Identity & Keys
 
-When state changes and your component re-runs, ZKite compares the new widget tree with the existing tree to update native views efficiently.
+When state updates and `view` evaluates again, ZKite compares the new widget tree with the existing tree:
 
-For dynamic or reordered items (such as items inside a list or fields with user input), assign a stable `key`:
+* Use a **stable `key`** when controls move, when list items are reordered, or when animation/input state needs to remain associated with the same item:
+  ```python
+  for item in items:
+      Row(
+          "p-3 border-b border-slate-800",
+          Text("text-white", item.name),
+          key=f"item-{item.id}"
+      )
+  ```
+* **Do not use random keys**: Generating a new key on every render forces Android to recreate the native view, losing cursor focus and animations.
+* **Avoid array indices as keys** when items can be inserted, deleted, or reordered.
+
+---
+
+## Public Framework Exports
+
+Always import from the public `zkite` namespace:
 
 ```python
-for item in items:
-    Row("p-3 border-b border-slate-800",
-        Text("text-white", item.name),
-        key=f"item-{item.id}"
-    )
+from zkite import (
+    # Layout & composition
+    Column, Row, Grid, Stack, ScrollView,
+    # Display & controls
+    Text, Image, Icon, Button, TextField, Switch, Checkbox, Radio, Slider, Select,
+    # Recycler & system
+    List, SystemBars, Overlay,
+    # State & navigation
+    store, Nav, Navigator, NavigationHost, Entry,
+    # Animation & base types
+    Anim, AnimEnd, Widget, App
+)
 ```
 
-A stable `key` ensures that Android preserves internal state (such as focused text fields, scroll offsets, and active animations) rather than destroying and recreating native views.
+Internal module paths are private and not part of the supported public API.

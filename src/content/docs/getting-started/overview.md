@@ -1,18 +1,25 @@
 ---
 title: What ZKite Does
-description: Understand the architecture and capabilities of the ZKite native Android Python framework.
+description: Understand the architecture, distributions, and capabilities of the ZKite native Android Python framework.
 ---
 
-**ZKite** is a developer framework for writing native Android applications in Python. You write Python application code on a development computer, connect a physical Android device or emulator, and view the running interface through native Android rendering.
+**ZKite** lets you build native Android applications using Python. You describe a screen using widgets, keep changing values in stores, and connect user actions to state updates. ZKite lays out and draws the resulting interface with its native renderer. Android provides the application window, keyboard, system bars, and lifecycle.
 
-ZKite is designed to provide rapid mobile application development without sacrificing runtime responsiveness, requiring complex native Android toolchains, or forcing you to use embedded web views.
+The standard experience uses native rendering. It does **not** require a browser, HTML document, JavaScript application, or web server in the finished app. Its controls are framework-rendered controls integrated with Android platform services; do not assume each widget is a stock Android View with every stock property. Styling resembles a supported subset of Tailwind utilities, but ZKite is not a browser CSS engine.
 
-## Core Capabilities
+A development preview can reload Python changes while you work. A standalone application includes what it needs to run without that development connection. You can start with `zkite run`; running a development preview first is unnecessary.
 
-- **Direct Native Drawing**: Your UI is rendered natively rather than through a browser engine, providing authentic Android touch responsiveness, text rendering, and frame pacing.
-- **Instant Development Cycle**: `zkite dev` continuously synchronizes Python source changes to your device with instant hot reload.
-- **Pure Python Codebase**: Describe layouts, handle reactive events, call device APIs, and manage state entirely using modern Python.
-- **Self-Contained Distribution**: Build production `.apk` or `.aab` bundles ready for distribution. End users install standard Android applications and never need Python installed on their phones.
+---
+
+## What ZKite Is and Is Not
+
+ZKite suits native Android interfaces built from the documented layout, text, image, input, navigation, and state features.
+
+:::caution[Documented Scope Boundary]
+Features such as a camera API, comprehensive platform-service bindings, arbitrary compiled Python packages, and cross-platform iOS deployment are **not** part of this release's documented base. Historical plans describe ambitions and experiments; they are not promises of available features.
+:::
+
+---
 
 ## Architectural Model
 
@@ -20,25 +27,29 @@ ZKite cleanly separates the development host from the target Android device:
 
 ```
 ┌─────────────────────────────────┐           ┌───────────────────────────────────┐
-│     Host Computer (Dev)         │           │        Android Device / Emul      │
-│  - Python 3.14 Environment      │   ADB     │  - Native ZKite Android Runtime   │
+│     Host Computer (Dev)         │           │        Android Device / Emulator  │
+│  - CPython 3.14 Environment     │   ADB     │  - Native ZKite Android Runtime   │
 │  - ZKite CLI (dev, run, build)  │ ────────> │  - Bundled CPython Engine         │
-│  - Project Source (main.py)     │           │  - Native Hardware Canvas / View  │
+│  - Project Source & app.json    │           │  - Native Hardware Canvas / View  │
 └─────────────────────────────────┘           └───────────────────────────────────┘
 ```
 
-1. **Host Environment**: Runs the CLI tool (`zkite`) in an isolated Python 3.14 virtual environment on Linux or Windows.
-2. **Android Runtime**: A lightweight native runner embedded into the APK that hosts an embedded CPython engine and translates declarative widget instructions to Android platform views.
+1. **Host Environment**: Runs the CLI tool (`zkite`) in an isolated Python 3.14 virtual environment on Linux (x86_64) or Windows (x86_64).
+2. **Android Runtime**: A native engine embedded into the APK that hosts an embedded CPython engine and translates declarative widget instructions to Android hardware-accelerated graphics.
 
-## Terminology & Concepts
+---
 
-As you work with ZKite, you will encounter the following terminology:
+## Distribution Packages & Names You Will Encounter
 
-| Term | Meaning & Context |
+| Name | Meaning & Context |
 | :--- | :--- |
-| **Widget Tree** | The hierarchical description of your user interface created by composing widgets like `Column`, `Row`, `Text`, and `Button`. |
-| **Store** | The observable reactive in-memory state container that drives UI updates when changed via `store.update()`. |
-| **Development Preview** | A special app instance installed by `zkite dev` with debugging hooks for live source synchronization and hot reload. |
-| **Standalone Run** | A full APK build and install initiated via `zkite run` that works offline without an active host computer connection. |
-| **System Bars** | The Android status bar (top clock/battery area) and navigation bar (bottom gesture/button area). |
-| **Payload** | Prebuilt native Android runtime components distributed with the ZKite framework wheels. |
+| **ZKite** | The framework and product name. |
+| **`zkite` command** | The terminal CLI application used to create, preview, run, and build projects. |
+| **`zkite` Python import** | The public namespace for widgets, state decorators, and navigation APIs. |
+| **`zkite` distribution** | The host-specific command-line package installed through pip. |
+| **`zkite-framework`** | The Python API distribution, installed as a matching dependency. |
+| **`zkite-payload`** | The bundled Android runtime distribution, also installed as a matching dependency. |
+
+:::important[Keep Package Versions Synchronized]
+Install the `zkite` distribution for the complete tool. Installing only the framework API does not install the complete build environment. Keep all three distributions (`zkite`, `zkite-framework`, `zkite-payload`) at the same release version (e.g. `1.1.0`). The older names `kite` and `kitecli` are not the installation command for this product.
+:::

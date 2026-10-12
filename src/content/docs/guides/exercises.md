@@ -60,6 +60,6 @@ Solidify your understanding of ZKite by completing these six progressive exercis
 * **Goal**: Build and sign a distributable APK with custom branding.
 * **Steps**:
   1. Generate a permanent release key with `zkite keygen --out release_key`.
-  2. Set your custom `package` identifier, `label`, and `icon = "icon.png"` in `pyproject.toml`.
+  2. Set your custom `package` identifier, `label`, and `"icon": "assets/icon.png"` in `app.json`.
   3. Build the APK: `zkite build apk --abi arm64-v8a --keystore release_key.pem`.
   4. Install and verify the custom launcher icon and app label on your phone.

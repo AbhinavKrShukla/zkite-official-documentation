@@ -1,69 +1,134 @@
 ---
 title: Dependencies & Networking
-description: Resolving third-party Python packages, making HTTP network calls, and managing Android thread boundaries.
+description: Resolving third-party Python packages with requirements.txt, managing permissions in app.json, and HTTPS networking.
 ---
 
-ZKite applications can integrate pure-Python packages from PyPI and perform network communication using standard libraries.
+ZKite applications can integrate pure-Python packages from PyPI and perform verified HTTPS network communication.
+
+---
 
 ## Declaring Dependencies
 
-Declare third-party packages in `pyproject.toml` under `[project].dependencies`:
+In ZKite 1.1.0, you can declare dependencies using `requirements.txt`, `pyproject.toml`, or directly in `app.json`:
 
-```toml
+### 1. Using `requirements.txt` (Standard pip Projects)
+For standard pip projects, create a `requirements.txt` in your project root with one package per line:
+
+```text title="requirements.txt"
+# Pinned third-party dependencies
+requests==2.32.5
+pydantic==2.8.2
+```
+
+* Blank lines and `#` comments are supported.
+* Pip options (such as `--index-url`), recursive `-r` includes, and line continuations are not supported.
+* **No `pyproject.toml` is required** for pip projects.
+
+### 2. Using `pyproject.toml` (uv or Package Managers)
+For uv or other package managers, declare dependencies under `[project].dependencies`:
+
+```toml title="pyproject.toml"
 [project]
 name = "my-zkite-app"
-version = "1.0.0"
+version = "0.1.0"
 dependencies = [
-    "requests>=2.31.0",
-    "pydantic>=2.0.0"
+    "requests==2.32.5",
 ]
 ```
 
-When you run `zkite run` or `zkite build`, ZKite automatically resolves and bundles these dependencies into the application's native runtime environment.
+### 3. Using `app.json`
+An explicit `dependencies` array in `app.json` overrides the list in `pyproject.toml`:
 
-:::caution[Pure Python vs Compiled C Extensions]
-ZKite bundles a pre-compiled Android CPython 3.14 runtime.
-* **Supported**: Pure-Python packages (e.g. `requests`, `urllib3`, `pydantic-core` wheels for Android if pure, `jinja2`, `markdown`).
-* **Unsupported**: Desktop C-extensions with uncompiled native binaries (e.g. standard desktop `numpy` or `scipy` wheels without Android arm64 cross-compilation).
+```json title="app.json"
+{
+  "name": "my-zkite-app",
+  "dependencies": [
+    "requests==2.32.5"
+  ]
+}
+```
+
+Requirements from `requirements.txt` are combined with either list. Pin your versions to ensure exact reproducibility across builds.
+
+---
+
+## Pure-Python Compatibility Boundary
+
+The build resolves the complete dependency graph, including transitive requirements, for the requested Android architectures (`arm64-v8a` and `x86_64`).
+
+:::caution[Pure-Python Wheels Only]
+The supported dependency path is **compatible pure-Python wheels**.
+* **Supported**: Pure-Python packages (e.g. `requests`, `urllib3`, `idna`, `certifi`, `jinja2`, `markdown`).
+* **Unsupported**: Desktop C-extensions with uncompiled native binaries (e.g. desktop `numpy`, `scipy`, or `psutil` wheels). Desktop wheels for Windows or Linux cannot be copied into an Android APK.
+* An unavailable or incompatible dependency will fail the build rather than silently disappearing.
 :::
 
-## Making Network Requests
+---
 
-Always perform HTTP requests on a background worker thread to prevent freezing the Android UI thread:
+## Network Permissions in `app.json`
+
+To enable network access on Android, declare the `INTERNET` permission under `android` in `app.json`:
+
+```json title="app.json"
+{
+  "android": {
+    "permissions": ["INTERNET"]
+  }
+}
+```
+
+* New projects scaffolded with `zkite new` include this permission by default.
+* If your application is completely offline, remove `"INTERNET"` from `permissions`.
+
+---
+
+## Making HTTPS Requests
+
+`requests` and its pure-Python dependencies have been verified on Android hardware (such as Motorola Moto G54) with verified TLS certificates.
+
+Always perform network calls on a background worker thread:
 
 ```python
 import threading
-import urllib.request
-import json
-from zkite import Store
+import requests
+from zkite import store
 
-class ApiStore(Store):
-    status: str = "Idle"
-    weather: str = ""
+@store
+class WeatherStore:
+    temperature: str = "--"
+    status: str = "Ready"
 
-store = ApiStore()
+state = WeatherStore()
 
-def fetch_weather_data(city: str):
-    store.update(status="Loading...")
+def fetch_weather(city: str):
+    state.update(status="Loading...")
 
     def worker():
         try:
-            url = f"https://api.example.com/weather?city={city}"
-            req = urllib.request.Request(url, headers={"User-Agent": "ZKiteApp/1.0"})
-            with urllib.request.urlopen(req, timeout=10) as response:
-                data = json.loads(response.read().decode("utf-8"))
-                store.update(weather=data.get("temp", "N/A"), status="Ready")
+            # Verified HTTPS request using requests
+            resp = requests.get(
+                f"https://api.example.com/weather?city={city}",
+                timeout=10
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            state.update(
+                temperature=f"{data['temp']}°C",
+                status="Success"
+            )
         except Exception as err:
-            store.update(status=f"Error: {err}")
+            state.update(status=f"Error: {err}")
 
     threading.Thread(target=worker, daemon=True).start()
 ```
 
+---
+
 ## Standard Library Pruning (`--no-prune-stdlib`)
 
-To keep mobile APK sizes minimal, ZKite automatically analyzes your project and prunes unused parts of the Python standard library.
+ZKite analyzes your code and prunes unused modules from the Python standard library to keep mobile APK sizes minimal.
 
-If your project utilizes heavy dynamic reflection or `importlib` for runtime module loading, use the `--no-prune-stdlib` flag during builds:
+If your code or a dependency relies on dynamic runtime imports via `importlib` that static analysis cannot discover, pass `--no-prune-stdlib`:
 
 ```bash
 zkite run --no-prune-stdlib

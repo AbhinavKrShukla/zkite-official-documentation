@@ -20,7 +20,7 @@ ZKite provides an extensive collection of native Android widgets. All widgets fo
 | Widget | Purpose | Key Properties |
 | :--- | :--- | :--- |
 | [`Text`](/widgets/text/) | Typography and textual labels | Classes, content string |
-| [`Image`](/widgets/image/) | Local image assets and data URIs | Classes, `src`, `alt`, fit modes |
+| [`Image`](/widgets/image/) | Local assets, recursive assets folder, data URIs, and HTTPS URLs | Classes, `src`, `alt`, fit modes |
 | [`Icon`](/widgets/icon/) | Bundled native vector icon symbols | Classes, `name` |
 
 ## Interactive Controls

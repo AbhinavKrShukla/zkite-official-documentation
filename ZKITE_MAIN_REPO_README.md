@@ -18,8 +18,8 @@
 </div>
 
 > [!NOTE]
-> **Status: Version 1.0.0 in Final Preparation**  
-> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. PyPI release wheels and pre-built native runtime payloads will be published shortly.
+> **Status: Version 1.1.0 Release**  
+> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Includes support for `app.json`, recursive `assets/`, HTTPS remote images, and backward compatibility for 1.0.0 projects.
 
 ---
 
@@ -106,13 +106,16 @@ flowchart LR
 Install into an isolated Python 3.14 virtual environment:
 
 ```bash
-# Linux / macOS
+# Linux
 python3.14 -m venv .venv && source .venv/bin/activate
-pip install zkite==1.0.0
+pip install zkite==1.1.0
 
 # Windows (PowerShell)
 py -3.14 -m venv .venv; .\.venv\Scripts\Activate.ps1
-pip install zkite==1.0.0
+pip install zkite==1.1.0
+
+# For the previous stable version:
+# pip install zkite==1.0.0
 ```
 
 ### 2. Scaffold a Project

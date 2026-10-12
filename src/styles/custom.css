@@ -41,7 +41,7 @@
 }
 
 .site-title::after {
-	content: 'v1.0.0';
+	content: 'v1.1.0';
 	font-size: 0.72rem;
 	font-weight: 600;
 	color: var(--sl-color-accent-high);

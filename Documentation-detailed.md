@@ -1,8 +1,8 @@
-# ZKite 1.0 — detailed learner documentation
+# ZKite 1.1 — detailed learner documentation
 
-This is the learner-facing knowledge base for ZKite 1.0.0. It describes the implemented native Android framework, its public API, everyday workflows, and practical debugging. It intentionally contains no framework source listings, private release infrastructure, signing material, or credentials. Commands are terminal instructions; API names and configuration keys are reference material.
+This is the learner-facing knowledge base for ZKite 1.1.0. It describes the implemented native Android framework, its public API, everyday workflows, and practical debugging. It intentionally contains no framework source listings, private release infrastructure, signing material, or credentials. Commands are terminal instructions; API names and configuration keys are reference material.
 
-The target release is **1.0.0**. At the preparation date, October 12, 2026, **0.1.0rc1** is the published prerelease; the 1.0.0 upload is a separate maintainer action. Installation commands pinned to 1.0.0 apply after that upload, or with the prepared local wheels as explained below. A version number does not replace testing your own application on its intended devices.
+This guide covers **1.1.0**, prepared after the published 1.0.0 release. Commands pinned to 1.1.0 require its PyPI upload or the prepared local wheels. The latest two source commits (`4e7d592` and `4c29ca0`) cover stable-release lifecycle/text-selection fixes and the new app configuration, assets, networking and release-error behavior. See [release notes](CHANGELOG.md) for the changes and [release status](docs/status.md) for tested scope.
 
 ## Contents and suggested learning order
 
@@ -62,7 +62,7 @@ Install the `zkite` distribution for the complete tool. Installing only the fram
 
 ## Supported environments
 
-| Item | ZKite 1.0 base |
+| Item | ZKite 1.1 base |
 |---|---|
 | Host Python | CPython 3.14. Use the same minor version as the supplied Android runtime. |
 | Linux host | x86_64, glibc 2.28 or newer, using the manylinux wheel. |
@@ -94,7 +94,7 @@ Run these commands in order:
 
 1. `python3.14 -m venv .venv`
 2. `. .venv/bin/activate`
-3. `python -m pip install zkite==1.0.0`
+3. `python -m pip install zkite==1.1.0`
 4. `zkite --version`
 5. `adb version`
 
@@ -105,17 +105,17 @@ Install Android platform-tools separately if `adb` is unavailable, and add its d
 In PowerShell, run:
 
 1. `py -3.14 -m venv .venv`
-2. `.\.venv\Scripts\python.exe -m pip install zkite==1.0.0`
+2. `.\.venv\Scripts\python.exe -m pip install zkite==1.1.0`
 3. `.\.venv\Scripts\zkite.exe --version`
 4. `adb version`
 
 These commands do not require activating a PowerShell script. If your organization restricts script execution, continue using the explicit executable paths. After moving into a project one directory below the environment, the corresponding CLI path is `..\.venv\Scripts\zkite.exe`.
 
-### Install before the stable upload
+### Install before the 1.1.0 upload
 
-For the already published prerelease, substitute `zkite==0.1.0rc1` in the pip installation command. That older CLI does not have the new `--version` option; use `python -m pip show zkite` to identify it.
+For the previous stable version, use `zkite==1.0.0`. It does not include the new 1.1.0 scaffold and HTTPS image loader.
 
-For locally supplied 1.0.0 wheels, put the compatible host CLI wheel and both shared wheels in one directory. Run `python -m pip install --no-index --find-links PATH_TO_WHEELS zkite==1.0.0`. Use the actual directory path, and quote it if it contains spaces. Pip selects the CLI wheel matching the host and installs the matching dependencies. An Android APK is not a pip-installable file.
+For locally supplied 1.1.0 wheels, put the compatible host CLI wheel and both shared wheels in one directory. Run `python -m pip install --no-index --find-links PATH_TO_WHEELS zkite==1.1.0`. Use the actual directory path, and quote it if it contains spaces. Pip selects the CLI wheel matching the host and installs the matching dependencies. An Android APK is not a pip-installable file.
 
 ### Verify installation
 
@@ -150,26 +150,28 @@ Wait for the command to finish and inspect the phone. The app should display the
 
 For iterative development, run `zkite dev` from the same project directory. Leave that process running while editing supported Python files. The preview reloads changes on the selected device. Stop the command with Ctrl+C when finished.
 
-Project names can contain letters, digits, underscores, and hyphens, but cannot start with a digit. Use a simple name such as `myapp` for learning. `zkite new` refuses to overwrite an existing directory. It does not convert an arbitrary existing Python program into an Android app.
+Project names can contain letters, digits, underscores, and hyphens, but cannot start with a digit. Use a simple name such as `myapp` for learning. `zkite new myapp` refuses to overwrite an existing directory. `zkite new myapp .` uses the current directory and refuses existing scaffold paths before writing files; unrelated files are retained. It does not convert an arbitrary existing Python program into an Android app.
 
 ## Understand the project files
 
 | File or directory | Purpose | Normal handling |
 |---|---|---|
 | `main.py` | Application entry module containing the top-level `view`. | Edit and commit. |
-| `pyproject.toml` | Project identity, dependencies, and Android settings. | Edit and commit. |
+| `app.json` | App identity, version, backend, and Android settings. | Edit and commit. |
+| `requirements.txt` / `pyproject.toml` | Optional dependency declarations for pip / uv. | Edit and commit as needed. |
 | `zkite.tailwind.json` | Styling/editor configuration created by the scaffold. | Keep with the project. |
 | `.gitignore` | Excludes generated and private local files. | Commit; adjust for your application if necessary. |
 | `.zkite/` | Local development state, preview cache, and development signing material. | Keep locally; do not commit. |
 | `dist/` | Built application artifacts. | Treat as build output. |
 | Top-level helper `.py` files | Supported application modules beside `main.py`. | Edit and commit. |
+| `assets/` | Recursively packaged app resources; created by the scaffold. | Commit intended app resources. |
 | Top-level PNG/JPG/JPEG files | Supported packaged image assets. | Commit assets intended for the app. |
 
 ### Important packaging boundary
 
-In this release, the app's own source and image staging is **flat**: supported files must be directly in the project directory. Nested application packages and paths such as `assets/logo.png` are not recursively included. Keep helper modules and bundled images beside `main.py` for reliable development/build parity. This limitation concerns your app's own files; dependency packages are resolved separately.
+Top-level Python modules and PNG/JPG/JPEG files are packaged. The complete `assets/` directory is now included recursively, so `assets/images/logo.png` works as an Image source. Other application package directories are not automatically staged. Third-party wheel packages are resolved separately and preserve their package structure and data.
 
-Arbitrary data files, fonts, JSON files, and directories are not automatically copied into the app merely because they are in the project. Do not design around a file being present until you have verified that it is packaged. A launcher icon configuration can name a project-relative icon file, but that does not make a nested image generally available to an `Image` widget.
+Put intended JSON, font or other resource files under `assets/`; arbitrary files elsewhere in the project are not automatically included. Symbolic links inside assets are rejected. A launcher icon can use a project-relative path independently of app resource staging. Never put credentials or signing keys in assets.
 
 ### Git and private files
 
@@ -236,6 +238,8 @@ Separate transient interface state from durable records. A dialog-open flag is u
 
 ### Slow work and errors
 
+Standalone APK/AAB builds show a generic restart message for uncaught Python startup, render and event errors. They do not display the traceback on screen. Developer logs retain diagnostic details, and `zkite dev` retains detailed error overlays. This does not prevent application bugs or Android crash dialogs; handle expected errors in your own UI.
+
 Keep callbacks short enough for responsive input. Move blocking work away from the rendering path, and publish its result through state updates. This release does not promise a general built-in asyncio application lifecycle or networking task manager; choose and test your execution model explicitly.
 
 Represent loading, empty, success, and error states in the UI. Prevent repeated actions while a request is already in progress where appropriate. Validate external data and user input before treating it as application state.
@@ -285,7 +289,7 @@ The generated styling configuration helps keep project/editor conventions togeth
 | `Text` | Classes, then visible text/content. | Displays text; first positional argument remains the class string. |
 | `Icon` | Classes, `name`, optional key. | A named built-in icon; not a general SVG loader. |
 | `Image` | Classes, `src`, `alt`. | Supported local or data-URI image content with explicit layout sizing. |
-| `List` | Classes, `count`, `item_height`, `builder`, `overscan`, key. | Builds the visible part of a fixed-height list. |
+| `List` | Classes, count, `item_height`, `builder`, `overscan`, key. | Builds the visible part of a fixed-height list. |
 
 ### Interactive controls
 
@@ -325,7 +329,7 @@ There are three separate concepts: an app's launcher icon, an `Icon` widget, and
 
 ### Launcher icon
 
-Set the `icon` key in `[tool.zkite.android]` inside `pyproject.toml`. A line beginning with `#` is a comment and has no effect. Use a real square PNG, preferably at least 192 pixels on each side, and a project-relative path for portability. Renaming a JPEG file to `.png` does not convert it.
+Set `android.icon` in `app.json`, for example `"icon": "assets/icon.png"`. Omit it to use the ZKite logo. JSON does not support comments. Use a real square PNG, preferably at least 192 pixels on each side, and a project-relative path for portability. Renaming a JPEG file to `.png` does not convert it.
 
 After changing the configured file or replacing its contents, rerun `zkite run` for the standalone app. For a preview, stop and restart `zkite dev` so it prepares and installs the updated preview. Ordinary source hot reload does not replace launcher resources in an already installed APK.
 
@@ -333,11 +337,11 @@ If an old icon remains, first confirm that you are inspecting the correct standa
 
 ### Images inside the screen
 
-The native `Image` supports PNG and JPEG-family images and supported data URIs. For packaged project assets, put the file beside `main.py` and use its relative filename. Set a meaningful size in the layout. A missing or unconstrained size can look like an image-loading failure.
+The native `Image` supports PNG and JPEG-family images and supported data URIs. For packaged project assets, put the file in `assets/` or beside `main.py` and use its relative path. Set a meaningful size in the layout. A missing or unconstrained size can look like an image-loading failure.
 
 The default fit behavior is cover. Supported fit choices include contain, fill, none, and scale-down. Cover can crop edges; contain can leave unused space. Choose based on whether preserving the whole image or filling a frame matters more. Rounded clipping can shape the displayed frame.
 
-The release does not provide a general automatic HTTP image loader, WebP/GIF/AVIF support, or full browser `object-position` behavior. Downloading and caching remote content needs an application design that is tested on Android. Images consume decoded memory as well as disk space; large source dimensions can be expensive even when displayed small.
+HTTPS PNG/JPEG URLs load asynchronously on native with verified TLS, a 2 MiB per-image limit and a bounded cache; declare the INTERNET permission. Downloads use four workers, a 15-second network timeout and a bounded cache. Failures leave an empty image and a log diagnostic; a later render can retry after 30 seconds. HTTPS redirects cannot downgrade to HTTP. HTTP cleartext, WebP/GIF/AVIF and full browser `object-position` behavior are not supported by the native image loader. Images consume decoded memory as well as disk space; large source dimensions can be expensive even when displayed small.
 
 ### Built-in icons
 
@@ -414,20 +418,40 @@ Handle completion through `on_animend` when the application needs to coordinate 
 
 ## Configuration reference
 
-`pyproject.toml` is the project's configuration file. Run project commands in the directory containing it. TOML uses sections and typed values; quotation marks, integer values, and commented lines have different meanings. A commented example is not active configuration.
+A complete example (omit `icon` to use the supplied ZKite logo):
+
+```json
+{
+  "name": "myapp",
+  "version": "0.1.0",
+  "backend": "native",
+  "android": {
+    "package": "com.yourcompany.myapp",
+    "label": "My App",
+    "version_code": 1,
+    "permissions": ["INTERNET"],
+    "icon": "assets/icon.png"
+  }
+}
+```
+
+All app settings come from `app.json` when it exists; legacy TOML app settings are then ignored. Keep the package identifier stable after publishing. JSON is read at build/preview preparation time and cannot change an installed launcher icon or name. A script may generate the file before a build. Stop and restart `zkite dev` after changing launcher settings.
+
+
+`app.json` contains app settings. Run project commands beside it. It is declarative JSON, evaluated at build time; scripts can generate it. `pyproject.toml` is optional and remains available to package managers. Legacy projects without `app.json` can still use their existing TOML settings. See [configuration examples](Documentation.md#10-configure-and-build-your-application).
 
 ### Project metadata
 
 | Section/key | Purpose |
 |---|---|
-| `[project] name` | Project/distribution-style name used by the app project. |
-| `[project] version` | Application version text. It is independent of the framework release. |
-| `[project] dependencies` | Declared Python dependencies to resolve for the app. |
-| `[tool.zkite] backend` | Rendering backend; native is the default and the supported release path. |
+| `name` | Project/distribution-style name used by the app project. |
+| `version` | Application version text. It is independent of the framework release. |
+| `dependencies` (or optional requirements.txt / pyproject dependencies) | Declared Python dependencies to resolve for the app. |
+| `backend` | Rendering backend; native is the default and the supported release path. |
 
 ### Android settings
 
-| Key under `[tool.zkite.android]` | Purpose and guidance |
+| Key under `android` in app.json | Purpose and guidance |
 |---|---|
 | `package` | Android application ID. Choose a stable, valid reverse-domain-style identifier. |
 | `label` | Human-readable app name shown by Android. |
@@ -445,7 +469,11 @@ Permission declarations do not automatically implement runtime permission reques
 
 ## Dependencies and networking
 
-Declare application dependencies in the project's dependency list. The build resolves the dependency graph, including transitive requirements, for the requested Android architectures. A package installed in your desktop environment is not automatically included in the Android app.
+For pip projects, create `requirements.txt` with one package requirement per line, for example `requests==2.32.5`. Blank lines and comments are supported; pip options, recursive includes and line continuations are not. No `pyproject.toml` is required.
+
+For uv or other package managers, use `[project].dependencies` in `pyproject.toml`. An explicit `dependencies` array in `app.json` overrides that list. Requirements from `requirements.txt` are added to either list; avoid conflicting constraints. ZKite does not currently consume uv lockfiles, so use pinned requirements when exact versions matter.
+
+Declare application dependencies in these files. The build resolves the dependency graph, including transitive requirements, for the requested Android architectures. A package installed in your desktop environment is not automatically included in the Android app.
 
 The supported dependency path is compatible pure-Python wheels. A package may look like Python but depend on compiled extensions or desktop operating-system services. Desktop wheels for Windows or Linux cannot simply be copied into Android. An unavailable or unsupported dependency should fail the build rather than be silently omitted.
 
@@ -453,7 +481,7 @@ Start with a small dependency set and build early. Add dependencies one at a tim
 
 ### Network requests
 
-Declare the Android INTERNET permission when the app needs network access. A declaration grants the manifest capability; it does not supply an HTTP client, authentication flow, retry strategy, or offline behavior. Use an appropriate compatible Python dependency or standard library feature and keep blocking network work out of view rendering.
+Declare `"permissions": ["INTERNET"]` under `android` in `app.json` when the app needs network access. New projects include this permission; remove it for offline apps. Requests and its pure-Python dependencies have been tested with verified HTTPS on the Moto G54. A declaration grants the manifest capability; it does not supply an HTTP client, authentication flow, retry strategy, or offline behavior. Use an appropriate compatible Python dependency or standard library feature and keep blocking network work out of view rendering.
 
 Plan for slow connections, no connection, timeouts, invalid responses, and a user leaving the screen before a request finishes. Store credentials appropriately for the application's threat model. A private server secret embedded in an APK is recoverable and should not be treated as private.
 
@@ -465,6 +493,8 @@ This flag concerns standard-library pruning. It does not add unsupported native 
 
 ## Data and application lifecycle
 
+The 1.0.0 stabilization commit preserves queued render commands and rejects expired Android surfaces during startup/resume. Text-selection callbacks also guard against an uninitialized overlay owner. These fixes are retained in 1.1.0; they do not make in-memory state persistent.
+
 Android can pause, resume, or terminate an app independently of the development terminal. A well-behaved app must tolerate leaving the foreground and returning. In-memory stores represent the current process state; they are not a guarantee of survival after process termination.
 
 Use deliberate persistence for data users expect to retain. Keep user data outside the managed application-source directory, whose contents can be replaced during app updates. Test save/load behavior after a normal restart and after an update installed with the same package and signing key.
@@ -475,11 +505,11 @@ Test startup while the device is busy, background/resume, opening and closing th
 
 ## Command reference
 
-Run `zkite --help` for the command list and `zkite COMMAND --help` for exact options. `zkite --version` is available in 1.0.0 without a project or connected phone.
+Run `zkite --help` for the command list and `zkite COMMAND --help` for exact options. `zkite --version` has been available since 1.0.0 without a project or connected phone.
 
-### `zkite new NAME`
+### `zkite new NAME [.]`
 
-Creates a fresh project containing the runnable sample, project settings, styling configuration, and `.gitignore`. Run it in the parent directory where the new project should live. It refuses an existing destination.
+Creates `main.py`, `app.json`, `assets/`, `zkite.tailwind.json`, and `.gitignore`. `zkite new myapp` creates a new directory. `zkite new myapp .` creates these paths in the current directory. Existing scaffold paths are never overwritten; no pyproject file is generated.
 
 ### `zkite dev`
 
