@@ -5,37 +5,59 @@
 ### Build Native Android Apps in Pure Python with Instant Hot Reload
 
 [![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Target OS](https://img.shields.io/badge/Android-API%2029%2B%20(Android%2010%2B)-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![Android Target](https://img.shields.io/badge/Android-API%2029%2B%20(10%2B)-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
 [![Google Play](https://img.shields.io/badge/Google%20Play-.aab%20Ready-34A853?logo=googleplay&logoColor=white)](https://play.google.com/console)
-[![Release](https://img.shields.io/badge/Status-1.0.0%20Coming%20Soon-10B981)](#)
+[![Documentation](https://img.shields.io/badge/Docs-zkite.cloud-0284C7)](https://zkite.cloud)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](#)
 
 <p align="center">
-  <b>No Android NDK. No Java/Kotlin toolchains. No heavy WebViews.</b><br/>
-  Just clean Python code, instant hot reload, and real native Android rendering.
+  <b>No Android NDK &bull; No Java/Kotlin toolchains &bull; No WebViews</b><br/>
+  Pure Python code, sub-second hot reload over ADB, and authentic native Android views.
 </p>
-
-[Documentation](https://zkite.cloud) • [Quick Start](#getting-started-in-60-seconds) • [Why ZKite?](#what-makes-zkite-different) • [Play Store](#google-play-store-distribution) • [Code Preview](#code-preview)
 
 </div>
 
----
-
-## Status: Version 1.0.0 Coming Soon
-
-ZKite 1.0.0 is in final preparation for public release. The official developer documentation is live, and release wheels (`.whl`) and pre-built native payloads will be published to PyPI shortly.
+> [!NOTE]
+> **Status: Version 1.0.0 in Final Preparation**  
+> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. PyPI release wheels and pre-built native runtime payloads will be published shortly.
 
 ---
 
-## What Makes ZKite Different?
+## Why ZKite?
 
-Building Android apps traditionally requires gigabytes of SDKs, Android Studio, complex Gradle build scripts, and the Android NDK. Alternative cross-platform tools often stuff your app into a sluggish web browser view (WebView).
+Building Android apps traditionally requires gigabytes of SDKs, Android Studio, Gradle daemons, and C++ toolchains. Alternative cross-platform solutions often stuff your app into an embedded WebView or demand complex compiler toolchains.
 
-**ZKite takes a completely different path:**
+| Capability | Typical Mobile Toolchains | **The ZKite Approach** |
+| :--- | :--- | :--- |
+| **Language & Syntax** | Multi-language setups or non-Python stacks | **Pure Python 3.14** end-to-end |
+| **Native Compilation** | Demands Android NDK, C++ compilers, & CMake | **Zero C++ / NDK required** on your machine |
+| **Build Infrastructure** | 10+ GB Android Studio, Java SDK, & Gradle daemons | **Pre-built native runtime** (No Gradle setup needed) |
+| **UI Subsystem** | Sluggish WebViews or canvas-drawn imitations | **Real Android Native Views** with hardware canvas |
+| **Development Feedback** | Multi-minute rebuilds or app restarts | **Sub-100ms Hot Reload** directly over ADB |
+| **Host Prerequisites** | Complex toolchain recipes & native dependencies | **Just Python 3.14 + ADB** |
 
-* **No Android NDK or C++ Compilation**: You never have to configure CMake, ninja, or native cross-compilers on your computer.
-* **No Java/Gradle Setup**: You do not need to install the JDK, manage Gradle daemons, or write XML layout files.
-* **Zero WebViews**: Your UI is rendered directly through Android's native graphics and view subsystem—not inside an embedded browser engine.
+### How It Works
+
+```mermaid
+flowchart LR
+    subgraph Host["💻 Developer Host (Linux / Windows)"]
+        py["Pure Python 3.14 App"]
+        cli["ZKite CLI (`zkite dev`)"]
+        py --> cli
+    end
+
+    subgraph Device["📱 Android Device / Emulator"]
+        runtime["Pre-built Native Engine"]
+        views["Android Native Graphics & View Tree"]
+        runtime --> views
+    end
+
+    cli -- "Sub-100ms ADB State Sync" --> runtime
+```
+
+* **No Android NDK or C++ Compilation**: Never configure CMake, Ninja, Clang, or native cross-compilers.
+* **No Java/Gradle Overhead**: You do not need to install the JDK, manage Gradle daemons, or write XML layout files.
+* **Zero WebViews**: Your UI is rendered directly through Android's native view system—not inside an embedded browser engine.
 * **Pure Python Simplicity**: All you need is standard **Python 3.14** and standard `adb` (Android Debug Bridge).
 
 ---
@@ -78,7 +100,9 @@ Plug in your Android phone (with USB debugging enabled) or start an emulator:
 ```bash
 zkite dev
 ```
-*Save any `.py` file, and see the UI update instantly on your phone!*
+
+> [!TIP]
+> Save any `.py` file—changes reflect on your device or emulator in under 100ms without restarting the app or resetting state.
 
 ---
 
