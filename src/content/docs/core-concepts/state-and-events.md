@@ -97,7 +97,7 @@ def fetch_data():
     threading.Thread(target=worker, daemon=True).start()
 ```
 
-### 2. Standalone Error Masking (1.1.0)
+### 2. Standalone Error Masking (1.1.1 & 1.1.0)
 * **Standalone APK / AAB**: Uncaught Python startup, render, and event exceptions display a generic restart message rather than rendering raw traceback text on user screens.
 * **Diagnostics**: Full tracebacks are preserved in device logcat (`zkite run --logs`).
-* **Development Mode**: `zkite dev` continues to display full interactive error overlays with detailed code frames.
+* **Development Mode**: `zkite dev` continues to display full interactive error overlays with detailed code frames. Invalid dependency changes are reported in the dev console without crashing the running app on device.

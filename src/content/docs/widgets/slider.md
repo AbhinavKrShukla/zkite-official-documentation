@@ -38,6 +38,7 @@ Slider(
     min: float = 0.0,
     max: float = 100.0,
     step: float = 1.0,
+    disabled: bool = False,
     on_change = None,
     key: str | None = None
 )
@@ -50,5 +51,6 @@ Slider(
 | `min` | `float` | `0.0` | Minimum allowable value at the left of the track. |
 | `max` | `float` | `100.0` | Maximum allowable value at the right of the track. |
 | `step` | `float` | `1.0` | Discrete increment step between valid values. |
-| `on_change` | `Callable[[float], None]` | `None` | Callback invoked with the updated numeric value as the thumb moves. |
+| `disabled` | `bool` | `False` | **(1.1.1)** When `True`, dims the slider visually and ignores touch interactions. |
+| `on_change` | `Callable[[float], None]` | `None` | Callback invoked with the updated numeric value as the thumb moves. In 1.1.1, the exact final position commits reliably on pointer up. |
 | `key` | `str` | `None` | Stable widget key. |

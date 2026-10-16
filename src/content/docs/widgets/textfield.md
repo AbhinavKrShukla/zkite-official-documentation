@@ -73,14 +73,20 @@ TextField(
 
 ## Keyboard Testing & Text Selection Stability
 
-:::tip[Native Selection Fixes in 1.1.0]
-ZKite 1.1.0 includes fixes ensuring text-selection callbacks guard against an uninitialized overlay owner during transitions.
+:::tip[Native Selection & Unicode Enhancements in 1.1.1]
+ZKite 1.1.1 brings comprehensive refinements to native Android text editing:
+* **Native Selection Toolbar**: Long-pressing text opens Android's native contextual action toolbar and selection handles on the very first gesture.
+* **Selection Geometry**: Selection bounds use the field's actual padding, bundled typeface, baseline, and rounded borders.
+* **Full Unicode & Emoji Handling**: UTF-16 cursor indices and Java modified UTF-8 are converted precisely at the JNI boundary, preventing misaligned cursors or corrupt state with emojis and accented characters.
+* **Keyboard Pan Tracking**: Selection overlays dynamically track Android 11+ window insets without double-panning the window.
+* **Duplicate Callback Suppression**: Suppresses redundant IME change events; Cut and typing in selection mode update Python immediately.
+* **Focus Teardown**: Removing a focused field from the view tree cleanly tears down native Android focus.
 :::
 
 When testing text input, verify on physical Android hardware:
 1. Deleting all text until empty.
 2. Inserting characters in the middle of existing text.
-3. Selecting a range of text, copying, and pasting.
-4. Inputting Unicode characters and emojis.
+3. Selecting a range of text, copying, and pasting using the native selection toolbar.
+4. Inputting multi-byte Unicode characters and emojis.
 5. Dismissing the soft keyboard and returning from other apps.
 6. **Preserve Field Keys**: Always preserve the field's `key` so ordinary state updates do not recreate the field and dismiss the keyboard unexpectedly.

@@ -18,7 +18,7 @@ Project names may contain letters, digits, underscores, and hyphens, but cannot 
 
 ---
 
-## Project Structure (1.1.0)
+## Project Structure (1.1.1 & 1.1.0)
 
 ```text
 myapp/
@@ -35,11 +35,11 @@ myapp/
 | :--- | :--- | :--- |
 | `main.py` | Application entry module containing the top-level `view`. | Edit and commit. |
 | `app.json` | App identity, version, backend, and Android configuration. | Edit and commit. |
-| `requirements.txt` | Dependency declarations for pip (or `pyproject.toml` for uv). | Edit and commit as needed. |
+| `requirements.txt` | Dependency declarations for pip (or `pyproject.toml` for uv). Live-reloaded in 1.1.1. | Edit and commit as needed. |
 | `assets/` | **Recursively packaged app resources**; created by scaffold. | Commit intended app assets. |
 | `zkite.tailwind.json` | Styling/editor utility class configuration. | Keep with project. |
 | `.gitignore` | Excludes generated outputs, local virtual environments, and keys. | Commit. |
-| `.zkite/` | Local development state, preview cache, and debug signing key (`debug.pem`). | Keep locally; do not commit. |
+| `.zkite/` | Local development state, dependency cache (`.zkite/dev-dependencies`), and debug signing key (`debug.pem`). | Keep locally; do not commit. |
 | `dist/` | Built release artifacts (`.apk` and `.aab`). | Build output. |
 | Top-level `.py` files | Helper application modules beside `main.py`. | Edit and commit. |
 | Top-level images | Top-level PNG/JPG/JPEG files packaged beside `main.py`. | Commit. |
@@ -91,7 +91,7 @@ Most widgets take a **class string first**, followed by their children or visibl
 
 ## 2. `app.json` (Configuration)
 
-All application settings in ZKite 1.1.0 come from `app.json`:
+All application settings in ZKite 1.1.1 come from `app.json`:
 
 ```json title="app.json"
 {

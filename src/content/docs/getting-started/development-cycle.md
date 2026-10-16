@@ -54,23 +54,23 @@ zkite run --logs
 
 Understanding reload boundaries avoids confusion during development:
 
-### Automatically Synchronized via Hot Reload:
+### Automatically Synchronized via Hot Reload (1.1.1):
 * Layout, styling utility classes, and widget hierarchy modifications.
 * Event callbacks and helper functions in top-level `.py` modules.
 * State values: compatible store fields retain their values across reloads; newly added fields take their declared defaults.
+* **Dependencies (New in 1.1.1)**: Adding, modifying, or removing pure-Python dependencies in `requirements.txt`, `[project].dependencies`, or `app.json` automatically re-resolves and synchronizes packages to the device live without restarting `zkite dev`. Resolved packages are cached under `.zkite/dev-dependencies`.
 
 ### Requires Restarting `zkite dev`:
-* Changes to `app.json` (package identifier, permissions, app label, build settings).
-* Adding or modifying dependencies in `requirements.txt` or `pyproject.toml`.
+* Android permissions, package identifier, and app label changes in `app.json`.
 * Replacing the app launcher icon file.
-* Adding new files to `assets/`.
+* Launcher resources requiring a freshly prepared preview package.
 
 ---
 
 ## Error Handling: Dev Preview vs. Standalone
 
-ZKite 1.1.0 provides differentiated error handling between development and release:
+ZKite 1.1.1 provides differentiated error handling between development and release:
 
-* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or event callbacks display detailed, interactive on-screen error overlays with Python tracebacks.
+* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or event callbacks display detailed, interactive on-screen error overlays with Python tracebacks. If a dependency declaration change fails to resolve, `zkite dev` reports the error and leaves the existing app running.
 * **In Standalone APK / AAB**: Uncaught exceptions display a clean, user-friendly restart screen rather than exposing raw developer tracebacks on the mobile display.
 * **Diagnostic Logs**: In all modes, full tracebacks and diagnostic logs are written to Android logcat and can be streamed in your terminal using `zkite run --logs`.

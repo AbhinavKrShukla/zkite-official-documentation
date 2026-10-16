@@ -16,7 +16,7 @@ No. The default and supported ZKite architecture uses **native Android rendering
 No. You can use compatible pure-Python dependencies (such as `requests`, `pydantic`, `jinja2`). Packages requiring desktop compiled C extensions (like desktop `numpy` or `scipy`) cannot be bundled without Android cross-compilation.
 
 ### Can I organize my project into nested subfolders?
-* **For Assets**: Yes! In ZKite 1.1.0, the `assets/` folder is packaged recursively (e.g. `assets/images/logo.png`, `assets/fonts/`).
+* **For Assets**: Yes! In ZKite 1.1.1 & 1.1.0, the `assets/` folder is packaged recursively (e.g. `assets/images/logo.png`, `assets/fonts/`).
 * **For Code**: Top-level helper `.py` modules beside `main.py` are packaged automatically. Arbitrary nested Python packages are not automatically staged in this release.
 
 ### Why is there both a development app and a normal app on my device?
@@ -32,7 +32,7 @@ The application's screen background and Android system bars are separate layers.
 No. `SystemBars` styles the backgrounds and icon contrast mode of the surrounding bars; it does not replace the operating system's indicators or system navigation gestures.
 
 ### Why does changing an icon not hot reload immediately?
-App launcher icons are Android package resources compiled into the APK manifest. Restart `zkite dev` or rerun `zkite run` so the preview or standalone APK is rebuilt with the new icon.
+App launcher icons are Android package resources compiled into the APK manifest. Restart `zkite dev` or rerun `zkite run` so the preview or standalone APK is rebuilt with the new icon. Note that unlike launcher icons, dependency edits in `requirements.txt` or `app.json` *do* hot reload automatically in 1.1.1!
 
 ### Can I build without connecting an Android phone?
 Yes. Both `zkite build apk` and `zkite build aab` run completely offline without requiring a connected physical device or emulator.
@@ -43,5 +43,5 @@ No. Pip distributes the desktop developer framework. Mobile end-users receive an
 ### Should I upgrade only `zkite-framework`?
 No. Always keep the CLI (`zkite`), the framework (`zkite-framework`), and the runtime payload (`zkite-payload`) at the exact same version:
 ```bash
-pip install zkite==1.1.0
+pip install zkite==1.1.1
 ```

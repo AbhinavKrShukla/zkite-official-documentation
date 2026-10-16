@@ -1,12 +1,99 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightVersions from 'starlight-versions';
+
+const allSlugs = [
+	'getting-started/overview',
+	'getting-started/supported-environments',
+	'getting-started/installation',
+	'getting-started/migration-1-1',
+	'getting-started/connect-device',
+	'getting-started/first-project',
+	'getting-started/development-cycle',
+	'core-concepts/widget-tree',
+	'core-concepts/state-and-events',
+	'core-concepts/layout-and-styling',
+	'core-concepts/lifecycle-and-data',
+	'widgets',
+	'widgets/column',
+	'widgets/row',
+	'widgets/grid',
+	'widgets/stack',
+	'widgets/scrollview',
+	'widgets/text',
+	'widgets/image',
+	'widgets/icon',
+	'widgets/button',
+	'widgets/textfield',
+	'widgets/switch',
+	'widgets/checkbox',
+	'widgets/radio',
+	'widgets/slider',
+	'widgets/select',
+	'widgets/list',
+	'widgets/system-bars',
+	'widgets/nav',
+	'widgets/overlay',
+	'features/animation',
+	'features/dependencies-networking',
+	'build/configuration',
+	'build/commands',
+	'build/distribute',
+	'guides/windows',
+	'guides/troubleshooting',
+	'guides/performance-accessibility',
+	'guides/exercises',
+	'guides/faq',
+	'guides/glossary',
+];
+
+/** @type {Record<string, string>} */
+const v111Redirects = {};
+for (const slug of allSlugs) {
+	v111Redirects[`/v1-1-1/${slug}`] = `/${slug}/`;
+}
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://zkite.cloud',
+	redirects: {
+		'/sitemap.xml': '/sitemap-index.xml',
+		'/v1-1-1': '/getting-started/overview/',
+		'/v1-1-1/': '/getting-started/overview/',
+		'/v1-1-0': '/v1-1-0/getting-started/overview/',
+		'/v1-1-0/': '/v1-1-0/getting-started/overview/',
+		'/v1-1-0/overview': '/v1-1-0/getting-started/overview/',
+		'/v1-1-0/overview/': '/v1-1-0/getting-started/overview/',
+		'/v1-0': '/v1-0-0/getting-started/overview/',
+		'/v1-0/': '/v1-0-0/getting-started/overview/',
+		'/v1-0/overview': '/v1-0-0/getting-started/overview/',
+		'/v1-0/overview/': '/v1-0-0/getting-started/overview/',
+		'/v1-0-0': '/v1-0-0/getting-started/overview/',
+		'/v1-0-0/': '/v1-0-0/getting-started/overview/',
+		'/v1-0-0/overview': '/v1-0-0/getting-started/overview/',
+		'/v1-0-0/overview/': '/v1-0-0/getting-started/overview/',
+		...v111Redirects,
+	},
 	integrations: [
 		starlight({
+			plugins: [
+				starlightVersions({
+					current: {
+						label: 'v1.1.1 (latest)',
+					},
+					versions: [
+						{
+							slug: 'v1-1-0',
+							label: 'v1.1.0',
+						},
+						{
+							slug: 'v1-0-0',
+							label: 'v1.0.0',
+						},
+					],
+				}),
+			],
 			title: 'ZKite',
 			description: 'Build fast, native Android applications in pure Python with instant hot reload.',
 			logo: {
@@ -72,7 +159,7 @@ export default defineConfig({
 						{ label: 'What ZKite Does', slug: 'getting-started/overview' },
 						{ label: 'Supported Environments', slug: 'getting-started/supported-environments' },
 						{ label: 'Installation', slug: 'getting-started/installation' },
-						{ label: "What's New in 1.1.0 & Migration", slug: 'getting-started/migration-1-1' },
+						{ label: "What's New in 1.1.1 & Migration", slug: 'getting-started/migration-1-1' },
 						{ label: 'Connect an Android Device', slug: 'getting-started/connect-device' },
 						{ label: 'Create Your First Project', slug: 'getting-started/first-project' },
 						{ label: 'Development Cycle & Hot Reload', slug: 'getting-started/development-cycle' },
@@ -161,12 +248,6 @@ export default defineConfig({
 						{ label: 'Learning Exercises', slug: 'guides/exercises' },
 						{ label: 'Frequently Asked Questions', slug: 'guides/faq' },
 						{ label: 'Glossary', slug: 'guides/glossary' },
-					],
-				},
-				{
-					label: 'Version 1.0.0 (Archive)',
-					items: [
-						{ label: 'ZKite 1.0.0 Full Documentation', slug: 'v1-0/overview' },
 					],
 				},
 			],

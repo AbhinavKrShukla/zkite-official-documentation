@@ -65,3 +65,5 @@ List(
 
 * **Keep `builder` Fast**: Do not perform file I/O, heavy calculations, or network requests inside the `builder` function. The builder is called repeatedly during scroll gestures.
 * **Bounded Viewport**: Always ensure the `List` container has bounded dimensions (`flex-1` or an explicit height utility).
+* **Viewport Hit-Test Isolation (1.1.1)**: Clipped list items outside the viewport respect boundary clipping and cannot intercept tap gestures meant for other views.
+* **Scroll Offset Clamping (1.1.1)**: If the item count decreases while scrolled down, ZKite automatically clamps the scroll offset after layout, preventing empty viewports.

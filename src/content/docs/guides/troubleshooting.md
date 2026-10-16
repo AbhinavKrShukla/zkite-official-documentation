@@ -30,6 +30,7 @@ When encountering issues, first identify which stage failed: **installation**, *
 | Local image missing | Verify format (PNG/JPEG), relative path (`assets/images/logo.png` or root), and explicit layout dimensions (`w-24 h-24`). |
 | Remote HTTPS image missing | Ensure `"permissions": ["INTERNET"]` in `app.json`, valid HTTPS URL with TLS, and file size under 2 MiB. |
 | Nested Python module missing | Automatic staging packages top-level `.py` files and `assets/`. Other nested application packages are not automatically staged. |
+| Stale or unpinned dependency in dev | Stop dev, delete `.zkite/dev-dependencies/`, and restart `zkite dev` to force fresh package resolution. |
 | App icon did not change | Check `android.icon` in `app.json`, verify real square PNG, and restart `zkite dev` or rerun `zkite run`. |
 | AAB will not install with `adb` | An AAB is for Google Play distribution. Build an APK (`zkite build apk`) for direct `adb install`. |
 

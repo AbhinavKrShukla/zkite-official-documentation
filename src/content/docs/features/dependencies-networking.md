@@ -9,7 +9,7 @@ ZKite applications can integrate pure-Python packages from PyPI and perform veri
 
 ## Declaring Dependencies
 
-In ZKite 1.1.0, you can declare dependencies using `requirements.txt`, `pyproject.toml`, or directly in `app.json`:
+In ZKite 1.1.1, you can declare dependencies using `requirements.txt`, `pyproject.toml`, or directly in `app.json`:
 
 ### 1. Using `requirements.txt` (Standard pip Projects)
 For standard pip projects, create a `requirements.txt` in your project root with one package per line:
@@ -52,13 +52,25 @@ Requirements from `requirements.txt` are combined with either list. Pin your ver
 
 ---
 
+## Live Dependency Sync in `zkite dev` (1.1.1)
+
+In ZKite 1.1.1, both `zkite dev` and production builds use the unified dependency resolver:
+
+* **Live Updates**: Editing `requirements.txt`, `[project].dependencies`, or `app.json` while `zkite dev` is running refreshes the package set, resolves transitive requirements, transfers new packages and metadata to the phone, and reloads the preview live.
+* **Automatic Removal**: Uninstalled or removed packages are cleanly deleted from managed device files.
+* **Resilient Failure Handling**: Invalid dependency changes or conflicting constraints report an error to your terminal while keeping the previous app state running on device.
+* **Dependency Caching (`.zkite/dev-dependencies`)**: Resolved package sets are cached under `.zkite/dev-dependencies`. Ordinary source code edits reuse the installed package set in milliseconds.
+* **Refreshing Unpinned Packages**: To force a re-resolution of an unpinned requirement, stop `zkite dev`, remove `.zkite/dev-dependencies`, and restart dev.
+
+---
+
 ## Pure-Python Compatibility Boundary
 
 The build resolves the complete dependency graph, including transitive requirements, for the requested Android architectures (`arm64-v8a` and `x86_64`).
 
 :::caution[Pure-Python Wheels Only]
 The supported dependency path is **compatible pure-Python wheels**.
-* **Supported**: Pure-Python packages (e.g. `requests`, `urllib3`, `idna`, `certifi`, `jinja2`, `markdown`).
+* **Supported**: Pure-Python packages (e.g. `requests`, `urllib3`, `idna`, `certifi`, `jinja2`, `markdown`). Transitive metadata and resource files (such as `certifi` CA bundles) are fully preserved.
 * **Unsupported**: Desktop C-extensions with uncompiled native binaries (e.g. desktop `numpy`, `scipy`, or `psutil` wheels). Desktop wheels for Windows or Linux cannot be copied into an Android APK.
 * An unavailable or incompatible dependency will fail the build rather than silently disappearing.
 :::

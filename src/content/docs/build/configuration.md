@@ -1,13 +1,13 @@
 ---
 title: Configuration Reference (app.json & TOML)
-description: Complete specification of project settings in app.json for ZKite 1.1.0 and legacy pyproject.toml for 1.0.0.
+description: Complete specification of project settings in app.json for ZKite 1.1.1/1.1.0 and legacy pyproject.toml for 1.0.0.
 ---
 
-ZKite 1.1.0 uses a declarative **`app.json`** file for project identity, Android packaging, permissions, and build configuration. Legacy **`pyproject.toml`** configuration remains fully supported for backward compatibility.
+ZKite 1.1.1 uses a declarative **`app.json`** file for project identity, Android packaging, permissions, and build configuration. Legacy **`pyproject.toml`** configuration remains fully supported for backward compatibility.
 
 ---
 
-## 1. `app.json` Specification (ZKite 1.1.0)
+## 1. `app.json` Specification (ZKite 1.1.1 & 1.1.0)
 
 Run project commands in the directory beside `app.json`.
 

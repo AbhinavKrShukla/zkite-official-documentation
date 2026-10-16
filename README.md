@@ -1,6 +1,6 @@
 # ZKite Documentation Website
 
-Official developer documentation for **ZKite 1.1.0** (and 1.0.0) — Build native Android apps using modern Python with instant hot reload.
+Official developer documentation for **ZKite 1.1.1** (with 1.1.0 and 1.0.0 multi-version switching) — Build native Android apps using modern Python with instant hot reload.
 
 Built with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build).
 

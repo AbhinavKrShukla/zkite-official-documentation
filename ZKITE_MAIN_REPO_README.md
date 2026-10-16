@@ -18,8 +18,8 @@
 </div>
 
 > [!NOTE]
-> **Status: Version 1.1.0 Release**  
-> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Includes support for `app.json`, recursive `assets/`, HTTPS remote images, and backward compatibility for 1.0.0 projects.
+> **Status: Version 1.1.1 Release**  
+> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Features live development dependency sync, navigation entrance transitions, hardened Unicode & text selection, and easy switching between 1.1.1, 1.1.0, and 1.0.0.
 
 ---
 
@@ -108,13 +108,14 @@ Install into an isolated Python 3.14 virtual environment:
 ```bash
 # Linux
 python3.14 -m venv .venv && source .venv/bin/activate
-pip install zkite==1.1.0
+pip install zkite==1.1.1
 
 # Windows (PowerShell)
 py -3.14 -m venv .venv; .\.venv\Scripts\Activate.ps1
-pip install zkite==1.1.0
+pip install zkite==1.1.1
 
-# For the previous stable version:
+# For previous releases:
+# pip install zkite==1.1.0
 # pip install zkite==1.0.0
 ```
 

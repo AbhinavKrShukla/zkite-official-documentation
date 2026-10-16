@@ -51,5 +51,5 @@ ZKite cleanly separates the development host from the target Android device:
 | **`zkite-payload`** | The bundled Android runtime distribution, also installed as a matching dependency. |
 
 :::important[Keep Package Versions Synchronized]
-Install the `zkite` distribution for the complete tool. Installing only the framework API does not install the complete build environment. Keep all three distributions (`zkite`, `zkite-framework`, `zkite-payload`) at the same release version (e.g. `1.1.0`). The older names `kite` and `kitecli` are not the installation command for this product.
+Install the `zkite` distribution for the complete tool. Installing only the framework API does not install the complete build environment. Keep all three distributions (`zkite`, `zkite-framework`, `zkite-payload`) at the same release version (e.g. `1.1.1`). The older names `kite` and `kitecli` are not the installation command for this product.
 :::

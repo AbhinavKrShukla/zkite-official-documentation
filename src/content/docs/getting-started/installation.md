@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install ZKite 1.1.0 (or 1.0.0) in an isolated Python environment on Linux or Windows.
+description: Install ZKite 1.1.1 (or archived 1.1.0 / 1.0.0) in an isolated Python environment on Linux or Windows.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -27,8 +27,8 @@ python3.14 --version
     # 2. Activate the virtual environment
     source .venv/bin/activate
 
-    # 3. Install ZKite 1.1.0
-    python -m pip install zkite==1.1.0
+    # 3. Install ZKite 1.1.1
+    python -m pip install zkite==1.1.1
 
     # 4. Verify CLI and ADB
     zkite --version
@@ -44,8 +44,8 @@ python3.14 --version
     # 1. Create a virtual environment with Python 3.14
     py -3.14 -m venv .venv
 
-    # 2. Install ZKite 1.1.0 using the environment's python directly
-    .\.venv\Scripts\python.exe -m pip install zkite==1.1.0
+    # 2. Install ZKite 1.1.1 using the environment's python directly
+    .\.venv\Scripts\python.exe -m pip install zkite==1.1.1
 
     # 3. Verify CLI and ADB
     .\.venv\Scripts\zkite.exe --version
@@ -58,17 +58,23 @@ python3.14 --version
 
 ---
 
-## Installing Previous Stable Version (1.0.0)
+## Installing Older Versions (1.1.0 or 1.0.0)
 
-If your existing project requires the previous stable release, install `zkite==1.0.0`:
+If your existing project requires an older stable release:
 
-```bash
-pip install zkite==1.0.0
-```
+* **ZKite 1.1.0**:
+  ```bash
+  pip install zkite==1.1.0
+  ```
+  See the [ZKite 1.1.0 Full Documentation Archive](/v1-1-0/overview/).
 
-:::note[Differences in 1.0.0]
-ZKite 1.0.0 uses `pyproject.toml` configuration, flat root file staging, and does not include the 1.1.0 scaffold and HTTPS image loader. See the [What's New in 1.1.0 & Migration Guide](/getting-started/migration-1-1/) or read the complete [ZKite 1.0.0 Full Documentation Archive](/v1-0/overview/).
-:::
+* **ZKite 1.0.0**:
+  ```bash
+  pip install zkite==1.0.0
+  ```
+  See the [ZKite 1.0.0 Documentation](/v1-0-0/getting-started/overview/).
+
+For a side-by-side feature comparison across all releases, read the [What's New & Migration Guide](/getting-started/migration-1-1/).
 
 ---
 
@@ -79,7 +85,7 @@ For locally supplied wheels prior to PyPI indexing:
 1. Place the compatible host CLI wheel (`manylinux` or `win_amd64`) and both shared wheels (`zkite-framework` and `zkite-payload`) into a single directory.
 2. Run:
    ```bash
-   python -m pip install --no-index --find-links PATH_TO_WHEELS zkite==1.1.0
+   python -m pip install --no-index --find-links PATH_TO_WHEELS zkite==1.1.1
    ```
 
 ---
@@ -104,7 +110,7 @@ zkite --version
 ```
 Expected output:
 ```text
-zkite 1.1.0
+zkite 1.1.1
 ```
 
 ### 3. Run System Diagnostics
