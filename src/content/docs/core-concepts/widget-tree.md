@@ -86,13 +86,13 @@ Always import from the public `zkite` namespace:
 ```python
 from zkite import (
     # Layout & composition
-    Column, Row, Grid, Stack, ScrollView,
+    Column, Row, Grid, Stack, ScrollView, Tabs,
     # Display & controls
     Text, Image, Icon, Button, TextField, Switch, Checkbox, Radio, Slider, Select,
     # Recycler & system
     List, SystemBars, Overlay,
-    # State & navigation
-    store, Nav, Navigator, NavigationHost, Entry,
+    # State, tasks & navigation
+    store, Task, Nav, Navigator, NavigationHost, Entry,
     # Animation & base types
     Anim, AnimEnd, Widget, App
 )

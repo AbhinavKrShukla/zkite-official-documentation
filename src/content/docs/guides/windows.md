@@ -23,8 +23,8 @@ In PowerShell, run these commands in order:
 # 1. Create a virtual environment with Python 3.14
 py -3.14 -m venv .venv
 
-# 2. Install ZKite 1.1.1 using the environment's python directly
-.\.venv\Scripts\python.exe -m pip install zkite==1.1.1
+# 2. Install ZKite 1.1.2 using the environment's python directly
+.\.venv\Scripts\python.exe -m pip install zkite==1.1.2
 
 # 3. Verify CLI and ADB
 .\.venv\Scripts\zkite.exe --version
@@ -41,11 +41,18 @@ After navigating into a project folder created one level below (`cd myapp`), the
 
 ---
 
-## Installing Version 1.0.0
+## Installing Older Versions
 
-To develop against the previous stable 1.0.0 release:
+To develop against an earlier stable release on Windows:
 
 ```powershell
+# For ZKite 1.1.1
+.\.venv\Scripts\python.exe -m pip install zkite==1.1.1
+
+# For ZKite 1.1.0
+.\.venv\Scripts\python.exe -m pip install zkite==1.1.0
+
+# For ZKite 1.0.0
 .\.venv\Scripts\python.exe -m pip install zkite==1.0.0
 ```
 

@@ -32,10 +32,13 @@ The application's screen background and Android system bars are separate layers.
 No. `SystemBars` styles the backgrounds and icon contrast mode of the surrounding bars; it does not replace the operating system's indicators or system navigation gestures.
 
 ### Why does changing an icon not hot reload immediately?
-App launcher icons are Android package resources compiled into the APK manifest. Restart `zkite dev` or rerun `zkite run` so the preview or standalone APK is rebuilt with the new icon. Note that unlike launcher icons, dependency edits in `requirements.txt` or `app.json` *do* hot reload automatically in 1.1.1!
+App launcher icons are Android package resources compiled into the APK manifest. In 1.1.2, launcher icons use adaptive icon resources. Restart `zkite dev` or rerun `zkite run` so the preview or standalone APK is rebuilt with the new icon. Note that unlike launcher icons, dependency edits in `requirements.txt` or `pyproject.toml` *do* hot reload automatically!
+
+### How do I run blocking network or file calls without freezing the UI?
+Use the module-level [`Task`](/core-concepts/state-and-events/#background-io-with-the-task-api-new-in-112) API introduced in ZKite 1.1.2. It executes work across 4 managed background workers outside the UI thread and automatically pushes fresh UI frames with reactive `loading`, `data`, and `error` states.
 
 ### Can I build without connecting an Android phone?
-Yes. Both `zkite build apk` and `zkite build aab` run completely offline without requiring a connected physical device or emulator.
+Yes. Both `zkite build apk` and `zkite build aab` run completely offline without requiring a connected physical device or emulator, and automatically discover release keys in `keystore/`.
 
 ### Can I publish my finished mobile app to PyPI?
 No. Pip distributes the desktop developer framework. Mobile end-users receive an APK or an Android App Bundle distributed through an Android app store.
@@ -43,5 +46,5 @@ No. Pip distributes the desktop developer framework. Mobile end-users receive an
 ### Should I upgrade only `zkite-framework`?
 No. Always keep the CLI (`zkite`), the framework (`zkite-framework`), and the runtime payload (`zkite-payload`) at the exact same version:
 ```bash
-pip install zkite==1.1.1
+pip install zkite==1.1.2
 ```

@@ -7,35 +7,42 @@ Distributing your Android application through app stores is completely separate 
 
 ---
 
-## 1. Generate a Permanent Signing Key
+## 1. Automatic Release Signing Keys (New in 1.1.2)
 
-For apps released to testers or app stores, generate a permanent signing key:
+In ZKite 1.1.2, release builds automatically manage signing identities under the ignored `keystore/` directory:
 
 ```bash
-zkite keygen --out my_release_key --cn "MyCompany Android Release"
+# Generate the default release keypair
+zkite keygen --cn "My company"
 ```
 
 This generates:
-* `my_release_key.pem` (Combined private key and certificate used by ZKite)
-* `my_release_key.p12` (Standard PKCS#12 keystore)
+* `keystore/release.pem` (Combined private key and certificate used by ZKite)
+* `keystore/release.p12` (Standard PKCS#12 keystore)
+
+If no release key exists when running a build command, `zkite build apk` or `zkite build aab` creates the PEM/PKCS#12 pair automatically.
+
+### Key Discovery Order
+1. Explicit `--keystore PATH` CLI argument
+2. `keystore/release.pem` (project default)
+3. Legacy root-level `zkite-release.pem`
 
 :::danger[Secure Your Private Key]
-Keep `my_release_key.pem` safe and backed up in a secure password manager or key vault. Never commit signing keys to Git. If you lose this key, Android will permanently prevent you from shipping updates to existing users of that package ID.
+Keep `keystore/release.pem` and `keystore/release.p12` safe and backed up in a secure password manager or key vault outside your repository. Git automatically ignores the `keystore/` folder. If you lose this key, Android will permanently prevent you from shipping updates to existing users of that package ID.
 :::
 
 ---
 
 ## 2. Building Release Artifacts
 
+Both `zkite build apk` and `zkite build aab` automatically detect and reuse `keystore/release.pem`.
+
 ### Standalone APK (Direct Sideloading / Direct Download)
 
 For direct user installation or testing on physical phones:
 
 ```bash
-zkite build apk \
-  --abi arm64-v8a \
-  --keystore /path/to/my_release_key.pem \
-  --out dist/
+zkite build apk --abi arm64-v8a --out dist/
 ```
 
 ### Android App Bundle (Google Play Store)
@@ -43,11 +50,13 @@ zkite build apk \
 Google Play and modern app stores require an **Android App Bundle (.aab)**. Pass all target architectures so the store can generate optimized split APKs:
 
 ```bash
-zkite build aab \
-  --abi arm64-v8a \
-  --abi x86_64 \
-  --keystore /path/to/my_release_key.pem \
-  --out dist/
+zkite build aab --abi arm64-v8a --abi x86_64
+```
+
+To sign with a key stored in an alternative location, pass `--keystore`:
+
+```bash
+zkite build aab --abi arm64-v8a --abi x86_64 --keystore /secure/keys/my_app.pem
 ```
 
 ---

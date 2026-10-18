@@ -35,7 +35,7 @@ Run project commands in the directory beside `app.json`.
 | `name` | `string` | Project/distribution-style name used by the application project. |
 | `version` | `string` | Application version text. Independent of the framework release. |
 | `backend` | `string` | Rendering backend. `"native"` is the default and supported path. |
-| `dependencies` | `list[str]` | Optional array of pure-Python dependencies to resolve (overrides `pyproject.toml`). |
+| `dependencies` | `list[str]` | *(Legacy only)* Merged with deprecation warning; prefer `requirements.txt` or `[project].dependencies` in `pyproject.toml`. |
 
 ### Android Settings (`android`)
 
@@ -47,10 +47,11 @@ Run project commands in the directory beside `app.json`.
 | `min_sdk` | `integer` | `26` | Minimum Android API level floor (API 26 = Android 8.0). |
 | `target_sdk` | `integer` | `36` | Target Android API level against which the app behavior is verified. |
 | `permissions` | `list[str]` | `["INTERNET"]` | Manifest permission declarations required by application features. |
-| `icon` | `string` | *(ZKite logo)* | Project-relative path to launcher icon PNG (e.g. `"assets/icon.png"`). |
+| `icon` | `string` | *(ZKite logo)* | Project-relative path to launcher icon PNG (e.g. `"assets/icon.png"`). In 1.1.2, builds wrap this as a full-bleed adaptive icon without baked-in padding. |
 
-:::important[App Identity & Updates]
-Android decides whether an installation is an update to an existing app based on **`package`** and the **Signing Identity**. Changing `label` does not affect update identity, but changing `package` installs a separate application. Never decrease `version_code` on an intended update.
+:::important[App Identity & Keystore Management]
+* **Update Identity**: Android determines whether an installation is an update to an existing app based on **`package`** and the **Signing Identity**. Never decrease `version_code` on an intended update.
+* **Automatic Signing Keys (1.1.2)**: Release keys are stored under `keystore/` (e.g. `keystore/release.pem` and `keystore/release.p12`). The folder is automatically added to `.gitignore`. Keep secure backups of your release signing identity.
 :::
 
 ---

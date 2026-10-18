@@ -97,4 +97,5 @@ The launcher icon is configured separately in `app.json`:
 ```
 
 * Use a real square PNG (recommended 192x192 pixels or larger).
-* After changing the icon, rerun `zkite run` or restart `zkite dev` so the APK resource is re-packaged.
+* **Full-Bleed Adaptive Icons (New in 1.1.2)**: Builds and previews wrap the PNG as a full-bleed adaptive icon. Supply opaque artwork without baked-in padding. Android applies its launcher mask (circle, squircle, or rounded rect); outer edges may be cropped, and transparent source margins remain transparent.
+* After changing the icon, rerun `zkite run` or restart `zkite dev` so the APK resource is re-packaged. Source hot reload alone does not replace launcher resources in an already installed APK.

@@ -9,7 +9,7 @@ ZKite applications can integrate pure-Python packages from PyPI and perform veri
 
 ## Declaring Dependencies
 
-In ZKite 1.1.1, you can declare dependencies using `requirements.txt`, `pyproject.toml`, or directly in `app.json`:
+In ZKite 1.1.2, declare dependencies in `requirements.txt` or `pyproject.toml`:
 
 ### 1. Using `requirements.txt` (Standard pip Projects)
 For standard pip projects, create a `requirements.txt` in your project root with one package per line:
@@ -36,41 +36,77 @@ dependencies = [
 ]
 ```
 
-### 3. Using `app.json`
-An explicit `dependencies` array in `app.json` overrides the list in `pyproject.toml`:
-
-```json title="app.json"
-{
-  "name": "my-zkite-app",
-  "dependencies": [
-    "requests==2.32.5"
-  ]
-}
-```
-
-Requirements from `requirements.txt` are combined with either list. Pin your versions to ensure exact reproducibility across builds.
+### 3. Legacy `app.json` Dependencies
+No dependency list is needed in `app.json`. Its legacy `dependencies` array is merged with a deprecation notice; it does not override `pyproject.toml` dependencies. Requirements from `requirements.txt` are also merged; avoid conflicting constraints. ZKite does not currently consume uv lockfiles, so use pinned requirements when exact versions matter.
 
 ---
 
-## Live Dependency Sync in `zkite dev` (1.1.1)
+## Android-Aware Dependency Markers & Extras (New in 1.1.2)
 
-In ZKite 1.1.1, both `zkite dev` and production builds use the unified dependency resolver:
+When evaluating environment markers and package extras, ZKite's dependency resolver targets the **Android mobile environment**, not your development host OS:
 
-* **Live Updates**: Editing `requirements.txt`, `[project].dependencies`, or `app.json` while `zkite dev` is running refreshes the package set, resolves transitive requirements, transfers new packages and metadata to the phone, and reloads the preview live.
-* **Automatic Removal**: Uninstalled or removed packages are cleanly deleted from managed device files.
-* **Resilient Failure Handling**: Invalid dependency changes or conflicting constraints report an error to your terminal while keeping the previous app state running on device.
-* **Dependency Caching (`.zkite/dev-dependencies`)**: Resolved package sets are cached under `.zkite/dev-dependencies`. Ordinary source code edits reuse the installed package set in milliseconds.
-* **Refreshing Unpinned Packages**: To force a re-resolution of an unpinned requirement, stop `zkite dev`, remove `.zkite/dev-dependencies`, and restart dev.
+* **Target Architectures**: ARM64 evaluates to `aarch64`; x86_64 evaluates to `x86_64`.
+* **Runtime Version**: Python marker versions match the bundled mobile CPython engine (**3.14.6** in this release).
+* **Package Extras**: Tracked separately for each dependency. A false marker skips that dependency; a true marker resolves and validates it normally.
+* **Release Baseline**: Android release markers use the minimum SDK baseline; device-specific kernel/build values are unavailable.
+* **Fail-Fast Safety**: Applicable dependencies requiring unsupported native C-extensions still fail clearly at build time rather than failing on device at runtime.
+
+---
+
+## Running a Pure-Python ASGI Server (New in 1.1.2)
+
+With ZKite 1.1.2, you can bundle lightweight embedded servers such as **Starlette** and **Uvicorn** directly inside your Android app:
+
+```toml title="pyproject.toml"
+[project]
+name = "my-zkite-app"
+version = "0.1.0"
+dependencies = [
+    "starlette==1.8.0",
+    "uvicorn==0.54.0",
+    "zkite>=1.1.1",
+]
+```
+
+Configure Uvicorn to run on its pure-Python networking stack with `asyncio` and `h11`:
+
+```python
+import uvicorn
+
+config = uvicorn.Config(
+    app,  # Your ASGI Starlette application
+    host="0.0.0.0",
+    port=8767,
+    loop="asyncio",
+    http="h11",
+    lifespan="off",
+)
+```
+
+:::caution[Pure-Python Server Guidelines]
+* **Never Run on UI Thread**: Do not start a long-running server inside `view()` or a synchronous UI callback. Manage server startup and shutdown outside the UI thread.
+* **Avoid `uvicorn[standard]`**: Do not specify `uvicorn[standard]`, as that pulls in `uvloop` and `httptools` which require compiled C extensions without Android wheels. Stick to pure-Python `uvicorn` with `h11`.
+:::
+
+---
+
+## Live Dependency Sync in `zkite dev`
+
+Both `zkite dev` and production builds share the unified dependency resolver:
+
+* **Live Updates**: Editing `requirements.txt` or `pyproject.toml` while `zkite dev` is running refreshes the package set, resolves transitive requirements, transfers new packages to the connected Android device, and reloads the preview live.
+* **Automatic Removal**: Uninstalled packages are cleanly deleted from managed device files.
+* **Resilient Failure Handling**: Invalid dependency constraints report an error to your terminal while keeping the existing app state running on device.
+* **Dependency Caching (`.zkite/dev-dependencies`)**: Resolved package sets are cached locally under `.zkite/dev-dependencies`. Ordinary source edits reuse the installed package set in milliseconds.
+* **Refreshing Unpinned Packages**: To force a re-resolution, stop `zkite dev`, remove `.zkite/dev-dependencies`, and restart.
 
 ---
 
 ## Pure-Python Compatibility Boundary
 
-The build resolves the complete dependency graph, including transitive requirements, for the requested Android architectures (`arm64-v8a` and `x86_64`).
-
 :::caution[Pure-Python Wheels Only]
 The supported dependency path is **compatible pure-Python wheels**.
-* **Supported**: Pure-Python packages (e.g. `requests`, `urllib3`, `idna`, `certifi`, `jinja2`, `markdown`). Transitive metadata and resource files (such as `certifi` CA bundles) are fully preserved.
+* **Supported**: Pure-Python packages (e.g. `requests`, `urllib3`, `idna`, `certifi`, `jinja2`, `markdown`, `starlette`, `uvicorn`). Transitive metadata and resource files (such as `certifi` CA bundles) are fully preserved.
 * **Unsupported**: Desktop C-extensions with uncompiled native binaries (e.g. desktop `numpy`, `scipy`, or `psutil` wheels). Desktop wheels for Windows or Linux cannot be copied into an Android APK.
 * An unavailable or incompatible dependency will fail the build rather than silently disappearing.
 :::
@@ -94,44 +130,33 @@ To enable network access on Android, declare the `INTERNET` permission under `an
 
 ---
 
-## Making HTTPS Requests
+## Making Nonblocking HTTPS Requests with `Task` (New in 1.1.2)
 
-`requests` and its pure-Python dependencies have been verified on Android hardware (such as Motorola Moto G54) with verified TLS certificates.
-
-Always perform network calls on a background worker thread:
+Use the module-level `Task` API to run blocking HTTP requests outside the UI thread with built-in loading and error states:
 
 ```python
-import threading
-import requests
-from zkite import store
+import json
+from urllib.request import urlopen
+from zkite import Button, Column, Task, Text
 
-@store
-class WeatherStore:
-    temperature: str = "--"
-    status: str = "Ready"
+fetch_weather = Task()
 
-state = WeatherStore()
+def query_api(city: str):
+    with urlopen(f"https://api.example.com/weather?city={city}", timeout=10) as resp:
+        return json.loads(resp.read())
 
-def fetch_weather(city: str):
-    state.update(status="Loading...")
-
-    def worker():
-        try:
-            # Verified HTTPS request using requests
-            resp = requests.get(
-                f"https://api.example.com/weather?city={city}",
-                timeout=10
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            state.update(
-                temperature=f"{data['temp']}°C",
-                status="Success"
-            )
-        except Exception as err:
-            state.update(status=f"Error: {err}")
-
-    threading.Thread(target=worker, daemon=True).start()
+def view():
+    return Column(
+        "flex-1 p-6 gap-4 bg-slate-900",
+        Button(
+            "p-4 bg-orange-600 rounded-xl",
+            "Fetch Weather",
+            on_tap=lambda: fetch_weather.start(query_api, "Tokyo"),
+            disabled=fetch_weather.loading,
+        ),
+        Text("text-white text-xl", f"Result: {fetch_weather.data}" if fetch_weather.data else "No data"),
+        Text("text-red-400", str(fetch_weather.error) if fetch_weather.error else ""),
+    )
 ```
 
 ---

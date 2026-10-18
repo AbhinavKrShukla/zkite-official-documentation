@@ -58,19 +58,20 @@ Understanding reload boundaries avoids confusion during development:
 * Layout, styling utility classes, and widget hierarchy modifications.
 * Event callbacks and helper functions in top-level `.py` modules.
 * State values: compatible store fields retain their values across reloads; newly added fields take their declared defaults.
-* **Dependencies (New in 1.1.1)**: Adding, modifying, or removing pure-Python dependencies in `requirements.txt`, `[project].dependencies`, or `app.json` automatically re-resolves and synchronizes packages to the device live without restarting `zkite dev`. Resolved packages are cached under `.zkite/dev-dependencies`.
+* **Background Tasks (New in 1.1.2)**: A successful hot reload automatically cancels outstanding in-flight `Task` results, preventing obsolete network or I/O responses from updating newly edited components.
+* **Dependencies**: Adding, modifying, or removing pure-Python dependencies in `requirements.txt` or `pyproject.toml` automatically re-resolves and synchronizes packages to the device live without restarting `zkite dev`. Resolved packages are cached under `.zkite/dev-dependencies`.
 
 ### Requires Restarting `zkite dev`:
 * Android permissions, package identifier, and app label changes in `app.json`.
-* Replacing the app launcher icon file.
+* Replacing the app launcher icon file or adaptive icon resources.
 * Launcher resources requiring a freshly prepared preview package.
 
 ---
 
 ## Error Handling: Dev Preview vs. Standalone
 
-ZKite 1.1.1 provides differentiated error handling between development and release:
+ZKite 1.1.2 provides differentiated error handling between development and release:
 
-* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or event callbacks display detailed, interactive on-screen error overlays with Python tracebacks. If a dependency declaration change fails to resolve, `zkite dev` reports the error and leaves the existing app running.
+* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or event callbacks display detailed, interactive on-screen error overlays with Python tracebacks. Framework errors provide actionable entry-point guidance without exposing internal planning-document paths. If a dependency declaration change fails to resolve, `zkite dev` reports the error and leaves the existing app running.
 * **In Standalone APK / AAB**: Uncaught exceptions display a clean, user-friendly restart screen rather than exposing raw developer tracebacks on the mobile display.
 * **Diagnostic Logs**: In all modes, full tracebacks and diagnostic logs are written to Android logcat and can be streamed in your terminal using `zkite run --logs`.

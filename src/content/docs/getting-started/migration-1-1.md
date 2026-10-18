@@ -1,136 +1,164 @@
 ---
-title: What's New in 1.1.1 & Migration Guide
-description: Comprehensive overview of new features, bug fixes, and performance improvements across ZKite 1.1.1, 1.1.0, and 1.0.0.
+title: What's New in 1.1.2 & Migration Guide
+description: Comprehensive overview of new features, bug fixes, and performance improvements across ZKite 1.1.2, 1.1.1, 1.1.0, and 1.0.0.
 ---
 
-ZKite **1.1.1** is the latest stable release of the framework, introducing live dependency synchronization during development, native navigation transitions, hardened text selection with emoji/Unicode handling, and interaction fixes. It builds directly upon **1.1.0** and maintains backwards compatibility for projects built with **1.0.0**.
+ZKite **1.1.2** is the latest stable release of the framework, introducing a new premium Discover/Playground starter template, the nonblocking `Task` background I/O API, adaptive momentum scrolling, granular text wrapping and line-overflow controls, full-bleed adaptive launcher icons and native color emoji, the controlled swipeable `Tabs` widget, Android-aware dependency markers and package extras, pure-Python ASGI server compatibility (Starlette and Uvicorn), and automatic release key discovery.
 
----
-
-## Evolution: 1.0.0 vs. 1.1.0 vs. 1.1.1
-
-| Feature / Area | ZKite 1.0.0 | ZKite 1.1.0 | ZKite 1.1.1 (Latest) |
-| :--- | :--- | :--- | :--- |
-| **Development Dependency Sync** | Requires manual restart / rebuild | Resolves on build; dev requires manual sync | **Live automatic reload**: Edits to `requirements.txt` / `app.json` push packages/resources live; unneeded wheels reconciled; cached in `.zkite/dev-dependencies` |
-| **Navigation (`Nav`)** | Base push / pop / replace | Basic stack navigation | **Harden validation**: Screen destinations & params validated before mutation; isolated entry identity; **`Navigator.reset(screen, **params)`**; optional **160ms entrance animations** (`transition=False` to disable) |
-| **Text Input & Selection** | Initial baseline | Basic text selection bounds | **Native toolbar on first long-press**; exact UTF-16 cursor & Java modified UTF-8 conversion preserving emoji; suppressed duplicate IME callbacks; keyboard pan alignment |
-| **Virtual List (`List`)** | Fixed count & height | Initial virtual recycling | **Viewport hit-test isolation** (clipped items cannot steal taps outside viewport); **scroll offset clamping** when lists shrink |
-| **Interactive Controls** | Basic tap events | Basic controls | **Disabled state**: Visual indications and interaction suppression; **Slider pointer-up commit** |
-| **App Configuration** | `pyproject.toml` (`[tool.zkite]`) | **`app.json`** introduced (TOML fallback preserved) | Standard **`app.json`** with live dependency sync |
-| **Asset Directory** | Flat root staging only | **Recursive `assets/` directory** staged automatically | Recursive `assets/` with async off-UI-thread extraction and frame-paced splash dismissal |
-| **Remote Images** | Local & data URIs | **Native HTTPS image loader** with TLS verification & cache | HTTPS loader with cached retry pacing |
-| **Packaging & Errors** | Developer tracebacks in all builds | Standalone release builds show clean generic restart screen | Standalone release masking with robust dev reload diagnostics |
+It builds directly upon **1.1.1** and **1.1.0** while maintaining backwards compatibility for existing projects.
 
 ---
 
-## 1. What's New in ZKite 1.1.1
+## Evolution: 1.0.0 vs. 1.1.0 vs. 1.1.1 vs. 1.1.2
 
-### Live Development Dependency Synchronization
-During `zkite dev`, the resolver now shares the full build dependency resolver:
-* **Live Refresh**: Adding or changing a package in `requirements.txt`, `[project].dependencies`, or `app.json` immediately fetches/resolves the package graph, transfers wheels, distribution metadata, and certificates to the connected Android device, and reloads the preview.
-* **Automatic Reconciliation**: Removed packages are automatically deleted from managed device storage.
-* **Error Resilience**: If an invalid dependency constraint is introduced, `zkite dev` reports the error and leaves the running preview app intact.
-* **Local Cache**: Resolved wheels are cached locally under `.zkite/dev-dependencies`. Standard source code edits reuse the installed package set in milliseconds without re-resolving dependencies.
-
-### Hardened Screen Navigation & Native Transitions
-The `Nav` container and `Navigator` receive major architectural enhancements:
-* **Native Entrance Animations**: Native screens now display a smooth 160 ms entrance transition by default. To disable transitions for a stack:
-  ```python
-  Nav("flex-1", home_screen, detail_screen, transition=False)
-  ```
-* **Full Stack Reset**: Replace the entire navigation stack with a single destination and parameters:
-  ```python
-  nav.reset(dashboard_screen, user_id=42)
-  ```
-* **Pre-mutation Validation**: Screen registrations, missing arguments, or invalid destinations raise Python exceptions before altering the navigation stack.
-* **Stack Entry Identity**: Each pushed entry receives its own widget identity, preventing detail screens from leaking scroll state or input focus when navigating between multiple instances of the same screen template.
-* **Nested Host Injection**: Nested `Nav(host=...)` automatically injects the proper host into child screens' `Navigator`.
-
-### Refined Text Selection & Unicode/Emoji Editing
-* **Android Selection Toolbar**: The native Android text selection toolbar and handles now appear reliably on the very first long-press.
-* **Full Unicode & Emoji Fidelity**: UTF-16 cursor indices and Java modified UTF-8 are correctly converted at the native C/JNI boundary, preventing crashes or caret misalignment when users type emojis or accented characters.
-* **Keyboard Pan Tracking**: Selection overlays dynamically track Android 11+ window insets without double-panning the window.
-* **IME Duplicate Suppression**: Suppresses redundant Android IME change callbacks for smoother typing performance.
-
-### Touch Hit Testing & List Clamping
-* **Clipped Row Tap Isolation**: Controls scrolled outside a `ScrollView` or `List` viewport now respect inherited clipping and cannot intercept taps destined for other UI components.
-* **List Scroll Clamping**: Dynamically shrinking the item count of a scrolled list clamps its viewport scroll offset cleanly rather than leaving an empty view.
-* **Interactive Control States**: Disabled controls (`disabled=True`) visually indicate an inactive state and cleanly discard pointer events.
-* **Slider Final Value**: Sliders commit their exact value on the final pointer-up gesture.
-
-### Responsive Startup & Splash Pacing
-* **Off-UI-Thread Asset Extraction**: App asset extraction now runs asynchronously on background worker threads, preventing ANRs (Application Not Responding) during cold launch.
-* **Guaranteed Frame Dismissal**: The startup splash view is dismissed only after the first native frame is actually presented to the screen.
+| Feature / Area | ZKite 1.0.0 | ZKite 1.1.0 | ZKite 1.1.1 | ZKite 1.1.2 (Latest) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Starter Scaffold (`new`)** | Basic counter template | Basic counter template | Basic counter template | **Interactive Discover/Playground**: Orange-and-white theme, swipeable tabs, and state persistence |
+| **Background I/O & Tasks** | Manual `threading.Thread` | Manual `threading.Thread` | Manual `threading.Thread` | **First-class `Task` API**: Module-level tasks, 4 managed workers, reactive `loading`/`data`/`error`, hot reload cancellation, stale result discard |
+| **Tab Navigation** | None (Stack navigation only) | None | None | **Controlled `Tabs` Widget**: Multi-page horizontal swipe physics with velocity momentum, scroll offset retention, and CSS snap on web |
+| **Text & Overflow** | Basic text rendering | Basic selection | First-press toolbar, UTF-16 cursor, keyboard tracking | **Overflow Controls & Emoji**: `wrap`, `multiline`, `max_lines`, `overflow="ellipsis"`, Noto color emojis & flag fallbacks |
+| **Scrolling Physics** | Basic touch scrolling | Basic touch scrolling | Viewport hit isolation & scroll clamping | **Smooth Momentum**: Adaptive velocity- and density-aware spline curves, held-finger gesture cancellation, `min-h-0` flex sizing |
+| **App Icons** | Flat PNG asset | `android.icon` in `app.json` | PNG resource packaging | **Full-Bleed Adaptive Icons**: Native Android adaptive icon resources without baked-in padding; auto-masked by system launchers |
+| **Dependency Resolution** | Static build-time | Resolves on build | Live automatic dev sync cached in `.zkite/dev-dependencies` | **Android-Aware Markers & Extras**: Evaluates markers against Android target (`aarch64`/`x86_64`, CPython 3.14.6); package extras tracked |
+| **ASGI Web Servers** | Not supported | Not supported | Not supported | **Pure-Python Servers**: Starlette & Uvicorn supported out of the box with `asyncio` and `h11` networking |
+| **Release Signing Keys** | Manual `--keystore` flag | Manual `--keystore` flag | Manual `--keystore` flag | **Automatic Key Discovery**: Default keys under ignored `keystore/` folder; auto-created and reused by APK/AAB builds |
+| **Framework Errors** | Tracebacks in all builds | Standalone release restart screen | Resilient dev reload diagnostics | **Actionable Public Errors**: Clean errors pointing to entry-point guidance without exposing internal planning-doc paths |
 
 ---
 
-## 2. Key Features Introduced in 1.1.0
+## 1. What's New in ZKite 1.1.2
 
-### Declarative App Configuration (`app.json`)
-```json title="app.json"
-{
-  "name": "myapp",
-  "version": "0.1.0",
-  "backend": "native",
-  "android": {
-    "package": "com.yourcompany.myapp",
-    "label": "My App",
-    "version_code": 1,
-    "permissions": ["INTERNET"],
-    "icon": "assets/icon.png"
-  }
-}
-```
+### New Premium Starter Application
+Running `zkite new myapp` creates an interactive orange-and-white Discover/Playground application with swipeable tabs and save interaction instead of a basic counter template. Creating or upgrading the framework preserves your existing application source files.
 
-### Recursive Asset Packaging (`assets/`)
-Assets inside the `assets/` directory are bundled recursively:
-```text
-myapp/
-├── main.py
-├── app.json
-├── assets/
-│   ├── icon.png
-│   ├── images/
-│   │   ├── hero.png
-│   │   └── avatar.jpg
-│   └── fonts/
-└── requirements.txt
-```
+### Nonblocking API Calls with `Task`
+Synchronous I/O operations inside `view()` or UI handlers block the main Android thread. ZKite 1.1.2 introduces the module-level `Task` API:
 
-### Built-in HTTPS Remote Image Loader
-Load web images asynchronously over verified TLS with automatic memory caching and retry management:
 ```python
-Image("w-48 h-48 rounded-2xl", src="https://example.com/photos/profile.jpg", fit="cover")
+import json
+from urllib.request import urlopen
+from zkite import Button, Column, Task, Text
+
+request = Task()
+
+def fetch_data():
+    with urlopen("https://api.example.com/items", timeout=15) as res:
+        return json.loads(res.read())
+
+def view():
+    return Column("flex-1 p-6 gap-4 bg-white",
+        Button("bg-orange-600 text-white p-4 rounded-xl", "Fetch",
+               on_tap=lambda: request.start(fetch_data), disabled=request.loading),
+        Text("text-slate-800", "Loading…" if request.loading else str(request.data)),
+        Text("text-red-600", str(request.error) if request.error else ""),
+    )
 ```
+
+* **4 Managed Workers**: Background jobs execute with a bounded queue limit of 32 jobs.
+* **Reactive Frame Push**: Completion automatically updates `loading`, `data`, and `error` under the render lock and presents a new frame.
+* **Automatic Invalidation**: Calling `request.start()` again invalidates earlier in-flight requests. Calling `cancel()` or performing a hot reload immediately discards stale results.
+* **Data Continuity**: Previous successful data is preserved during refreshes or transient connection failures.
+
+### Swipeable `Tabs` Widget
+`Tabs` allows horizontal peer navigation with native velocity swipe physics:
+
+```python
+from zkite import ScrollView, Tabs, Text, store
+
+@store
+class Screen:
+    tab: int = 0
+
+def view(s: Screen):
+    return Tabs(
+        "flex-1",
+        ScrollView("flex-1", Text("p-6", "Discover Page")),
+        ScrollView("flex-1", Text("p-6", "Playground Page")),
+        ScrollView("flex-1", Text("p-6", "Settings Page")),
+        labels=["Discover", "Playground", "Settings"],
+        index=s.tab,
+        on_change=lambda index: s.update(tab=index),
+        key="main-tabs",
+    )
+```
+
+* **Preserved Scroll Offsets**: Pages remain mounted in memory, so vertical scroll offsets survive tab switching.
+* **Smooth Physics**: Native pages follow horizontal gesture momentum and snap cleanly to page boundaries. WebView uses CSS scroll snapping.
+
+### Text Overflow Controls, Line Limits & Emoji
+Text now wraps inside its parent container by default and provides granular line clamping:
+
+```python
+# Truncation with ellipsis
+Text("flex-1", title, multiline=False, overflow="ellipsis")
+Text("w-full", summary, max_lines=3, overflow="ellipsis")
+Text("w-full", description, max_lines=2, overflow="clip")
+Text("", ticker, wrap=False, overflow="visible")
+```
+
+* **Color Emoji & Flags**: Native text rendering incorporates Android's installed Noto emoji fonts, supporting full-color bitmap emojis and international flag sequences.
+* **Grapheme Clusters**: Native truncation respects Unicode grapheme boundaries, preventing surrogate pair splits.
+
+### Smooth Momentum Scrolling
+Scrolling containers use an adaptive spline curve sampled by elapsed time:
+* **Velocity Tracking**: Deceleration curves respond naturally to gesture flick speed.
+* **Held-Finger Cancellation**: Pausing a finger on the display before lifting resets stale velocity vectors to prevent unwanted inertia flings.
+* **Flex Layout Rules**: Use `flex-1` with `min-h-0` on intermediate parents to let scrolling containers shrink within available screen height.
+
+### Android-Aware Dependency Markers & Pure-Python ASGI Servers
+* **Target Environment Evaluation**: Dependency markers evaluate against the target Android environment (ARM64 uses `aarch64`, x86_64 uses `x86_64`, CPython matches 3.14.6). Package extras are tracked separately.
+* **Starlette & Uvicorn Support**: Run lightweight ASGI servers directly inside your Android app on their pure-Python `asyncio` and `h11` networking stack.
+
+### Automatic Release Signing Keys in `keystore/`
+Release builds automatically generate and discover signing identities under `keystore/`:
+* `zkite keygen` creates `keystore/release.pem` and `keystore/release.p12` by default.
+* `zkite build apk` and `zkite build aab` automatically discover and reuse `keystore/release.pem`, or generate it if missing.
+* The `keystore/` directory is automatically added to `.gitignore`.
+
+### Cleaner Public Errors
+Framework errors no longer expose internal planning-document references or internal module paths, providing actionable entry-point guidance directly in the terminal and dev overlays.
 
 ---
 
-## Upgrading Your Project
+## 2. Key Features from 1.1.1 & 1.1.0
+
+* **Live Dev Dependency Sync (1.1.1)**: Edits to `requirements.txt` or `pyproject.toml` immediately sync packages live without restarting `zkite dev`.
+* **Screen Navigation Entrance Transitions (1.1.1)**: Smooth 160ms slide-and-fade native transitions and `Navigator.reset()`.
+* **Selection Toolbar & Unicode (1.1.1)**: Reliable first-press native Android text selection toolbar and UTF-16 cursor fidelity.
+* **`app.json` Configuration (1.1.0)**: Declarative mobile identity, package name, version codes, and permissions.
+* **Recursive Asset Packaging (1.1.0)**: Automatic bundling of nested files in `assets/`.
+* **Native HTTPS Image Loader (1.1.0)**: Asynchronous verified TLS image loading with automatic memory caching.
+
+---
+
+## Upgrading Your Project to 1.1.2
 
 ### 1. Upgrade the CLI
-Install the latest stable release:
+Install the latest release in your active Python 3.14 virtual environment:
 ```bash
-pip install --upgrade zkite==1.1.1
+pip install --upgrade zkite==1.1.2
 ```
 
 On Windows (PowerShell):
 ```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade zkite==1.1.1
+.\.venv\Scripts\python.exe -m pip install --upgrade zkite==1.1.2
 ```
 
 ### 2. Verify Version
 ```bash
 zkite --version
-# Output: zkite 1.1.1
+# Output: zkite 1.1.2
 ```
 
-### 3. Check Dependency Caching
-When running `zkite dev`, verify that your pure-Python dependencies (e.g. `requests`) cache properly under `.zkite/dev-dependencies`. If you ever need to clear the dependency cache, simply delete that directory:
-```bash
-rm -rf .zkite/dev-dependencies
-```
+### 3. Adopt New Features
+* Replace blocking network calls with module-level `Task` instances.
+* Use `Tabs` for multi-section peer screens.
+* Add `max_lines` and `overflow="ellipsis"` to clamp long titles or summaries.
+* Run `zkite build apk` or `zkite build aab` to take advantage of automatic `keystore/` release key discovery.
 
-:::tip[Looking for Older Versions?]
-* [ZKite 1.1.0 Full Documentation Archive](/v1-1-0/overview/)
-* [ZKite 1.0.0 Documentation](/v1-0-0/getting-started/overview/)
+:::tip[Archived Documentation Versions]
+Looking for documentation for an earlier release?
+* [ZKite 1.1.1 Documentation Archive](/v1-1-1/getting-started/overview/)
+* [ZKite 1.1.0 Documentation Archive](/v1-1-0/getting-started/overview/)
+* [ZKite 1.0.0 Documentation Archive](/v1-0-0/getting-started/overview/)
 :::

@@ -14,12 +14,13 @@ ZKite provides an extensive collection of native Android widgets. All widgets fo
 | [`Grid`](/widgets/grid/) | Two-dimensional matrix of items | Classes, children widgets |
 | [`Stack`](/widgets/stack/) | Overlapping z-index layer stack | Classes, children widgets |
 | [`ScrollView`](/widgets/scrollview/) | Scrollable viewport | Classes, children, `horizontal=True/False` |
+| [`Tabs`](/widgets/tabs/) | Multi-page swipeable tab container | Classes, pages, `labels`, `index`, `on_change`, `key` |
 
 ## Display Widgets
 
 | Widget | Purpose | Key Properties |
 | :--- | :--- | :--- |
-| [`Text`](/widgets/text/) | Typography and textual labels | Classes, content string |
+| [`Text`](/widgets/text/) | Typography, labels, and emoji | Classes, content string, `wrap`, `multiline`, `max_lines`, `overflow` |
 | [`Image`](/widgets/image/) | Local assets, recursive assets folder, data URIs, and HTTPS URLs | Classes, `src`, `alt`, fit modes |
 | [`Icon`](/widgets/icon/) | Bundled native vector icon symbols | Classes, `name` |
 

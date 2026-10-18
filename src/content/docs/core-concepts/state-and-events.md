@@ -75,29 +75,57 @@ Separate transient UI state (e.g. `dialog_open: bool`) from durable data (e.g. u
 
 ---
 
-## Slow Work and Error Boundaries
+---
 
-### 1. Offload Slow Operations
-Keep callbacks short for responsive 60/120 FPS interaction. Move blocking work (network requests, slow SQLite queries, large file reads) away from the rendering path using Python worker threads:
+## Background I/O with the `Task` API (New in 1.1.2)
+
+`view()` and ordinary event callbacks run synchronously on the UI thread. Any blocking operation—such as `urllib.request`, an HTTP client call, or reading a large local file—freezes user input and skips frames until it finishes.
+
+ZKite 1.1.2 introduces the **`Task` API** for nonblocking background I/O. Create tasks at module scope, launch them from event handlers, and read their reactive states (`loading`, `data`, `error`) directly inside `view()`:
 
 ```python
-import threading
+import json
+from urllib.request import urlopen
+from zkite import Button, Column, Task, Text
 
-def fetch_data():
-    profile.update(is_loading=True)
+# 1. Define task at module scope
+request = Task()
 
-    def worker():
-        try:
-            # Perform blocking I/O off the main thread
-            data = do_network_call()
-            profile.update(data=data, is_loading=False)
-        except Exception as err:
-            profile.update(error=str(err), is_loading=False)
+def fetch_items():
+    with urlopen("https://api.example.com/items", timeout=15) as response:
+        return json.loads(response.read())
 
-    threading.Thread(target=worker, daemon=True).start()
+def view():
+    return Column(
+        "flex-1 p-6 gap-4 bg-white",
+        Button(
+            "bg-orange-600 text-white p-4 rounded-xl",
+            "Refresh Data",
+            on_tap=lambda: request.start(fetch_items),
+            disabled=request.loading,
+        ),
+        # Read reactive task state directly
+        Text("text-slate-700", "Loading…" if request.loading else str(request.data)),
+        Text("text-red-700", str(request.error) if request.error else ""),
+    )
 ```
 
-### 2. Standalone Error Masking (1.1.1 & 1.1.0)
-* **Standalone APK / AAB**: Uncaught Python startup, render, and event exceptions display a generic restart message rather than rendering raw traceback text on user screens.
+### Task Lifecycle & Mechanics
+* **Nonblocking Dispatch**: `Task.start(fn, *args, **kwargs)` returns immediately. Work executes across 4 managed background workers with a bounded admission queue of 32 jobs.
+* **Reactive Frame Push**: When the worker returns a value, the framework automatically updates `request.loading`, `request.data`, and `request.error` under the render lock and pushes a fresh UI frame.
+* **Data Retention**: During re-fetches or failures, the previous successful `data` remains available so the UI doesn't abruptly collapse to blank.
+* **Automatic Invalidation & Cancellation**: Starting the same task again invalidates earlier in-flight results. Calling `request.cancel()` or triggering a hot reload immediately discards stale results.
+* **Return Values vs. Direct Mutation**: Workers must return data rather than directly updating widgets or stores from thread code.
+* **Async Event Callbacks**: Async event callbacks are also supported, but synchronous work inside them still blocks their event loop; use `Task` for blocking network or file I/O.
+
+---
+
+## Error Handling & Public Diagnostics
+
+### 1. Cleaner Public Errors (New in 1.1.2)
+Framework errors no longer expose internal planning-document references or internal module paths. They provide clear, actionable guidance pointing directly to application entry points (such as `main.py`'s `view()` function or misconfigured widget properties).
+
+### 2. Standalone vs. Development Error Behavior
+* **Standalone APK / AAB**: Uncaught Python startup, render, and event exceptions display a clean generic restart message rather than rendering raw traceback text on user screens.
 * **Diagnostics**: Full tracebacks are preserved in device logcat (`zkite run --logs`).
-* **Development Mode**: `zkite dev` continues to display full interactive error overlays with detailed code frames. Invalid dependency changes are reported in the dev console without crashing the running app on device.
+* **Development Mode (`zkite dev`)**: Retains interactive error overlays with detailed code frames. Invalid dependency changes are reported in the dev console without crashing the running app on device.

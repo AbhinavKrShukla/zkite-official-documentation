@@ -21,6 +21,7 @@ const allSlugs = [
 	'widgets/grid',
 	'widgets/stack',
 	'widgets/scrollview',
+	'widgets/tabs',
 	'widgets/text',
 	'widgets/image',
 	'widgets/icon',
@@ -49,9 +50,9 @@ const allSlugs = [
 ];
 
 /** @type {Record<string, string>} */
-const v111Redirects = {};
+const v112Redirects = {};
 for (const slug of allSlugs) {
-	v111Redirects[`/v1-1-1/${slug}`] = `/${slug}/`;
+	v112Redirects[`/v1-1-2/${slug}`] = `/${slug}/`;
 }
 
 // https://astro.build/config
@@ -59,8 +60,14 @@ export default defineConfig({
 	site: 'https://zkite.cloud',
 	redirects: {
 		'/sitemap.xml': '/sitemap-index.xml',
-		'/v1-1-1': '/getting-started/overview/',
-		'/v1-1-1/': '/getting-started/overview/',
+		'/v1-1-2': '/getting-started/overview/',
+		'/v1-1-2/': '/getting-started/overview/',
+		'/v1-1-2/overview': '/getting-started/overview/',
+		'/v1-1-2/overview/': '/getting-started/overview/',
+		'/v1-1-1': '/v1-1-1/getting-started/overview/',
+		'/v1-1-1/': '/v1-1-1/getting-started/overview/',
+		'/v1-1-1/overview': '/v1-1-1/getting-started/overview/',
+		'/v1-1-1/overview/': '/v1-1-1/getting-started/overview/',
 		'/v1-1-0': '/v1-1-0/getting-started/overview/',
 		'/v1-1-0/': '/v1-1-0/getting-started/overview/',
 		'/v1-1-0/overview': '/v1-1-0/getting-started/overview/',
@@ -73,16 +80,20 @@ export default defineConfig({
 		'/v1-0-0/': '/v1-0-0/getting-started/overview/',
 		'/v1-0-0/overview': '/v1-0-0/getting-started/overview/',
 		'/v1-0-0/overview/': '/v1-0-0/getting-started/overview/',
-		...v111Redirects,
+		...v112Redirects,
 	},
 	integrations: [
 		starlight({
 			plugins: [
 				starlightVersions({
 					current: {
-						label: 'v1.1.1 (latest)',
+						label: 'v1.1.2 (latest)',
 					},
 					versions: [
+						{
+							slug: 'v1-1-1',
+							label: 'v1.1.1',
+						},
 						{
 							slug: 'v1-1-0',
 							label: 'v1.1.0',
@@ -159,7 +170,7 @@ export default defineConfig({
 						{ label: 'What ZKite Does', slug: 'getting-started/overview' },
 						{ label: 'Supported Environments', slug: 'getting-started/supported-environments' },
 						{ label: 'Installation', slug: 'getting-started/installation' },
-						{ label: "What's New in 1.1.1 & Migration", slug: 'getting-started/migration-1-1' },
+						{ label: "What's New in 1.1.2 & Migration", slug: 'getting-started/migration-1-1' },
 						{ label: 'Connect an Android Device', slug: 'getting-started/connect-device' },
 						{ label: 'Create Your First Project', slug: 'getting-started/first-project' },
 						{ label: 'Development Cycle & Hot Reload', slug: 'getting-started/development-cycle' },
@@ -186,6 +197,7 @@ export default defineConfig({
 								{ label: 'Grid', slug: 'widgets/grid' },
 								{ label: 'Stack', slug: 'widgets/stack' },
 								{ label: 'ScrollView', slug: 'widgets/scrollview' },
+								{ label: 'Tabs (Swipeable Tabs)', slug: 'widgets/tabs' },
 							],
 						},
 						{

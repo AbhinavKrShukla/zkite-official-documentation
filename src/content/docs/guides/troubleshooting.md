@@ -58,9 +58,11 @@ Do not automatically uninstall an existing app to hide an update failure. Uninst
 | Symptom | Checks and Next Action |
 | :--- | :--- |
 | Text label is missing | Check the class-string-first constructor convention: `Text("text-white text-base", "Label")`. |
+| UI freezes during a request | Move blocking I/O into a module-level `Task` started from an event; avoid running network/file operations on the UI thread. |
+| Text needs truncation / overflow | Constrain its width (e.g. `flex-1`, `w-full`) and use `multiline=False` or `max_lines`, with `overflow="ellipsis"`. |
 | State changes but screen does not | Always use `store.update(field=value)` to trigger observer notifications. |
 | Text input resets while typing | Ensure the field's `value` is connected to a store and maintain a stable `key`. |
-| Screen does not scroll | Bound the scrolling region using `flex-1` / `min-h-0` or explicit height. |
+| Screen does not scroll | Bound the scrolling region using `flex-1`, and check intermediate parents for `min-h-0`. |
 | List rows overlap or clip | Verify fixed `item_height` against actual row content. |
 | Select will not open or close | If `open` is explicit, update it in the corresponding callbacks. |
 | Exit animation is invisible | Keep the widget present until its animation completion handler executes. |

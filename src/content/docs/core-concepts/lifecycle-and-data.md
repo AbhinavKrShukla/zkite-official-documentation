@@ -69,13 +69,13 @@ When the user navigates away from your app:
 2. In-memory state remains in RAM unless low memory forces process termination.
 3. Upon returning, Android resumes the activity.
 
-:::tip[Lifecycle Stabilization Fixes in 1.1.1 & 1.1.0]
-ZKite includes core stabilization logic:
+:::tip[Lifecycle Stabilization Fixes in 1.1.2]
+ZKite includes core stabilization logic preserved across 1.1.0, 1.1.1, and 1.1.2:
 * **Preserves Queued Render Commands**: Prevents lost frames when backgrounding and resuming under heavy load.
 * **Rejects Expired Surfaces**: Accurately discards detached Android native surfaces during resume before rendering new frames.
 * **Text-Selection Guards**: Text-selection callbacks guard against uninitialized overlay owners, preventing crashes when selecting text during transitions.
-* **Paced Startup & Splash Dismissal (1.1.1)**: Startup asset extraction runs off the UI thread to prevent ANRs. The splash view is dismissed only after the first frame is presented to the screen, and skipped presentations are automatically retried.
-* **Accessibility Refresh (1.1.1)**: Android accessibility services are automatically refreshed if enabled after application startup.
+* **Paced Startup & Splash Dismissal**: Startup asset extraction runs off the UI thread to prevent ANRs. The splash view is dismissed only after the first frame is presented to the screen, and skipped presentations are automatically retried.
+* **Accessibility Refresh**: Android accessibility services are automatically refreshed if enabled after application startup.
 
 These lifecycle fixes ensure solid runtime stability, but they do **not** make in-memory state persistent across process termination.
 :::

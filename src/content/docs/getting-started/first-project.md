@@ -14,19 +14,20 @@ cd myapp
 zkite new myapp .
 ```
 
-Project names may contain letters, digits, underscores, and hyphens, but cannot start with a digit. `zkite new` refuses to overwrite existing scaffold files.
+The generated app uses an interactive orange-and-white Discover/Playground design, swipeable tabs, and a save interaction instead of a basic counter. Creating or upgrading the framework does not replace existing app source.
 
 ---
 
-## Project Structure (1.1.1 & 1.1.0)
+## Project Structure (1.1.2)
 
 ```text
 myapp/
 ├── main.py             # Application entry point containing top-level view()
 ├── app.json            # App identity, version, backend, and Android settings
 ├── assets/             # Recursively packaged app resources (images, fonts, JSON)
+├── keystore/           # Default release PEM and PKCS#12 keys (ignored by Git)
 ├── zkite.tailwind.json # Styling and editor class configuration
-└── .gitignore          # Excludes build output, caches, and development keys
+└── .gitignore          # Excludes build output, caches, and keystore
 ```
 
 ### Project Files Overview
@@ -35,8 +36,9 @@ myapp/
 | :--- | :--- | :--- |
 | `main.py` | Application entry module containing the top-level `view`. | Edit and commit. |
 | `app.json` | App identity, version, backend, and Android configuration. | Edit and commit. |
-| `requirements.txt` | Dependency declarations for pip (or `pyproject.toml` for uv). Live-reloaded in 1.1.1. | Edit and commit as needed. |
+| `requirements.txt` | Dependency declarations for pip (or `pyproject.toml` for uv). | Edit and commit as needed. |
 | `assets/` | **Recursively packaged app resources**; created by scaffold. | Commit intended app assets. |
+| `keystore/` | Default release PEM and PKCS#12 signing files (New in 1.1.2). | Back up securely; do not commit. |
 | `zkite.tailwind.json` | Styling/editor utility class configuration. | Keep with project. |
 | `.gitignore` | Excludes generated outputs, local virtual environments, and keys. | Commit. |
 | `.zkite/` | Local development state, dependency cache (`.zkite/dev-dependencies`), and debug signing key (`debug.pem`). | Keep locally; do not commit. |

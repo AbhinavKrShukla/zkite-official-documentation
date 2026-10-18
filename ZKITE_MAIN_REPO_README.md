@@ -18,8 +18,8 @@
 </div>
 
 > [!NOTE]
-> **Status: Version 1.1.1 Release**  
-> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Features live development dependency sync, navigation entrance transitions, hardened Unicode & text selection, and easy switching between 1.1.1, 1.1.0, and 1.0.0.
+> **Status: Version 1.1.2 Release**  
+> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Features the new Task background I/O API, controlled swipeable Tabs, smooth momentum scrolling, text overflow & line limits, Android-aware dependencies, pure-Python ASGI servers, and automatic release key management across 1.1.2, 1.1.1, 1.1.0, and 1.0.0.
 
 ---
 

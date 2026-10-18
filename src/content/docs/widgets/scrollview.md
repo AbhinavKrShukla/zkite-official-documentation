@@ -38,6 +38,15 @@ ScrollView(classes: str, *children, horizontal: bool = False, key: str | None = 
 | `horizontal` | `bool` | `False` | When `True`, scrolling occurs along the X-axis rather than the default vertical axis. |
 | `key` | `str` | `None` | Stable widget key. |
 
-:::caution[Important: Bounded Dimensions]
-A `ScrollView` must have bounded dimensions in the direction of scrolling. Inside a `Column`, give the `ScrollView` `flex-1` or an explicit height utility like `h-80`. Unbounded dimensions can cause layout calculation issues.
+:::caution[Important: Bounded Dimensions & Flex Sizing]
+A `ScrollView` must have bounded dimensions in the direction of scrolling. Inside a `Column`, give the `ScrollView` `flex-1` or an explicit height utility like `h-80`. Use `min-h-0` on intermediate parents to allow the container to shrink within the available screen space. If a view expands to fit every child without constraint, there may be nothing left to scroll inside its own bounds.
 :::
+
+---
+
+## Smooth Momentum Scrolling (New in 1.1.2)
+
+In ZKite 1.1.2, scroll momentum uses an adaptive, velocity- and density-aware spline curve sampled by elapsed time:
+* **Velocity Tracking**: Natural deceleration curves calibrated to Android physical display densities.
+* **Held-Finger Gesture Cancellation**: Holding a finger still before lifting cancels stale movement vectors, preventing unexpected inertia fling launches.
+* **Fast Rendering Integrity**: Momentum calculation is frame-paced; keep view rendering and event handlers nonblocking (using `Task` for I/O) to sustain smooth 60/120 FPS scrolling.

@@ -20,6 +20,7 @@ Choosing the correct container ensures predictable Android layout and performanc
 | `Grid` | Repeated items in explicit columns. | Define a suitable column count and gap. |
 | `Stack` | Overlapping elements along the Z-axis. | Later children appear above earlier children. |
 | `ScrollView` | A finite collection that can exceed the viewport. | Bound the viewport; otherwise it may simply grow without scrolling. |
+| `Tabs` | Multi-page horizontal swipeable screens (New in 1.1.2). | Controlled index, stable keys, peer views with horizontal swipe momentum. |
 | `List` | Many fixed-height repeated rows. | Declare an accurate row height and stable identity. |
 
 ```python
@@ -41,17 +42,45 @@ Spacing and layout use ZKite's **density-aware coordinate system**. Layout value
 
 ---
 
-## Scroll Sizing & Constraints
+## Scroll Sizing & Momentum Physics (New in 1.1.2)
 
 A scrolling container needs a constrained viewport:
 
-* In a vertical `Column`, a growing content region commonly uses `flex-1`; combining this with `min-h-0` allows the region to shrink within the available screen height.
+* In a vertical `Column`, a growing content region commonly uses `flex-1`; combining this with `min-h-0` on intermediate parents allows the region to shrink within the available screen height.
 * If a container expands indefinitely to fit every child, there is nothing left to scroll inside its own bounds.
+* **Smooth Momentum Physics**: Scrolling in 1.1.2 uses a velocity- and density-aware spline sampled by elapsed time. A held finger stops stale movement vectors from launching unwanted inertia flings.
 * For horizontal scrolling, pass `horizontal=True` to `ScrollView`:
   ```python
   ScrollView("flex-1 p-4", child1, child2, horizontal=True)
   ```
 * Choose `ScrollView` for ordinary finite screens; choose `List` for large datasets with predictable fixed row heights.
+
+---
+
+## Text Wrapping, Line Limits & Overflow Controls (New in 1.1.2)
+
+In ZKite 1.1.2, text wraps within its available width by default. You have explicit, cross-platform controls for line limits and ellipsis truncation:
+
+```python
+from zkite import Text
+
+# Single-line truncation with ellipsis
+Text("flex-1", title, multiline=False, overflow="ellipsis")
+
+# Multi-line clamp at 3 lines with ellipsis
+Text("w-full", summary, max_lines=3, overflow="ellipsis")
+
+# Hard line-clamp clipping at 2 lines
+Text("w-full", description, max_lines=2, overflow="clip")
+
+# Unwrapped marquee or visible overflow
+Text("", ticker, wrap=False, overflow="visible")
+```
+
+* `overflow` accepts `"clip"` (default), `"ellipsis"`, or `"visible"`.
+* `max_lines` must be a positive integer.
+* Native truncation respects Unicode grapheme boundaries.
+* Ellipsis needs a constrained width, supplied by the parent or a width class like `flex-1` or `w-full`.
 
 ---
 
