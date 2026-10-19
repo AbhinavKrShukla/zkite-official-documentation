@@ -1,17 +1,17 @@
 ---
 title: Supported Environments & Matrix
-description: Operating system requirements, Android versions, CPU architectures, and Python compatibility for ZKite 1.1.2 (and earlier 1.1.1/1.1.0/1.0.0).
+description: Operating system requirements, Android versions, CPU architectures, and Python compatibility for ZKite 1.2.0 (and earlier archives).
 ---
 
 Before developing with ZKite, verify that your development computer and Android test hardware meet the requirements listed below.
 
 ## Support Matrix
 
-| Item | ZKite 1.1.2 Specification | Notes & Guidance |
+| Item | ZKite 1.2.0 Specification | Notes & Guidance |
 | :--- | :--- | :--- |
 | **Host Python** | **CPython 3.14** | Must use the same minor version as the supplied Android runtime. |
-| **Linux Host** | **x86_64**, glibc 2.28 or newer | Uses the `manylinux` wheel. A musl-only environment is incompatible. |
-| **Windows Host** | **x86_64 Windows** | Uses the `win_amd64` wheel. Native PowerShell/CMD without WSL. |
+| **Linux Host** | **x86_64**, glibc 2.28 or newer | Uses the validated `manylinux_2_28_x86_64` wheel. A musl-only environment is incompatible. |
+| **Windows Host** | **x86_64 Windows** | The release wheel passed Windows-Python checks under Wine and built a standalone APK. |
 | **Android Minimum SDK** | **Android 8.0 / API 26** (default) | Installation floor across physical devices and emulators. |
 | **Android Target SDK** | **API 36** (default) | Target API level for compiled Android manifests and runtime services. |
 | **Android Architectures** | `arm64-v8a` and `x86_64` | Real phones almost universally run `arm64-v8a`. Emulators run `x86_64`. |
@@ -20,7 +20,7 @@ Before developing with ZKite, verify that your development computer and Android 
 | **App Dependencies** | Pure-Python wheels | Dependency graph and transitive requirements resolved for Android. |
 
 :::caution[Platform Scope & Exclusions]
-* **macOS**: A macOS wheel is **not included** in this release set. Do not attempt macOS installation.
+* **macOS**: A macOS wheel is **not included** in this release set. Do not advertise or attempt macOS installation.
 * **Out of Scope**: Windows ARM, Linux ARM, 32-bit Android (`armeabi-v7a`, `x86`), iOS, and web deployment are outside this distribution's support scope.
 * **No Heavy Toolchains**: You do **not** need Rust, Gradle, a JDK, the Android NDK, or Android Studio to build an ordinary app from the complete pip installation.
 :::

@@ -37,11 +37,12 @@ zkite dev --port 9000
 ## 2. Standalone Run (`zkite run`)
 
 When you run `zkite run`:
-1. ZKite compiles an APK tailored for your device architecture, signs it with the local project key (`.zkite/debug.pem`), installs it, and launches it.
-2. The application is completely autonomous: you can unplug the USB cable and run the app anywhere.
+1. ZKite statically scans your Python source, synchronizes inferred permissions into `app.json`, and records audit findings in `.zkite/permissions.json`.
+2. It compiles an APK tailored for your device architecture, signs it with the local project key (`.zkite/debug.pem`), verifies manifest permissions inside the compiled package, installs it, and launches it.
+3. The application is completely autonomous: you can unplug the USB cable and run the app anywhere.
 
 ```bash
-# Build, install, and launch standalone app
+# Build, verify manifest, install, and launch standalone app
 zkite run
 
 # Follow Android system logs and Python stdout in your terminal
@@ -54,15 +55,17 @@ zkite run --logs
 
 Understanding reload boundaries avoids confusion during development:
 
-### Automatically Synchronized via Hot Reload (1.1.1):
+### Automatically Synchronized via Hot Reload:
 * Layout, styling utility classes, and widget hierarchy modifications.
 * Event callbacks and helper functions in top-level `.py` modules.
 * State values: compatible store fields retain their values across reloads; newly added fields take their declared defaults.
-* **Background Tasks (New in 1.1.2)**: A successful hot reload automatically cancels outstanding in-flight `Task` results, preventing obsolete network or I/O responses from updating newly edited components.
+* **Async Handlers & Device Resources (New in 1.2.0)**: A successful hot reload automatically cancels active async device coroutines and closes hardware subscriptions (such as audio players and sensor streams). Stale cancelled coroutines are strictly barred from updating stores through `state.update()`.
+* **Background Tasks**: Outstanding in-flight `Task` results are discarded, preventing obsolete network or I/O responses from updating newly edited components.
 * **Dependencies**: Adding, modifying, or removing pure-Python dependencies in `requirements.txt` or `pyproject.toml` automatically re-resolves and synchronizes packages to the device live without restarting `zkite dev`. Resolved packages are cached under `.zkite/dev-dependencies`.
 
-### Requires Restarting `zkite dev`:
-* Android permissions, package identifier, and app label changes in `app.json`.
+### Requires Restarting `zkite dev` / Running `zkite run`:
+* New manifest permissions (e.g. adding camera or microphone use requires rebuilding the manifest).
+* Android package identifier, version codes, or app label changes in `app.json`.
 * Replacing the app launcher icon file or adaptive icon resources.
 * Launcher resources requiring a freshly prepared preview package.
 
@@ -70,8 +73,9 @@ Understanding reload boundaries avoids confusion during development:
 
 ## Error Handling: Dev Preview vs. Standalone
 
-ZKite 1.1.2 provides differentiated error handling between development and release:
+ZKite 1.2.0 provides differentiated error handling between development and release:
 
-* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or event callbacks display detailed, interactive on-screen error overlays with Python tracebacks. Framework errors provide actionable entry-point guidance without exposing internal planning-document paths. If a dependency declaration change fails to resolve, `zkite dev` reports the error and leaves the existing app running.
+* **In `zkite dev`**: Uncaught exceptions during startup, view rendering, or async event callbacks display detailed, interactive on-screen error overlays with Python tracebacks.
 * **In Standalone APK / AAB**: Uncaught exceptions display a clean, user-friendly restart screen rather than exposing raw developer tracebacks on the mobile display.
+* **Device Exceptions**: Typed device exceptions (`PermissionDenied`, `UnsupportedFeature`, `ResourceBusy`, etc.) inherit from `zkite.errors.DeviceError` so you can handle expected runtime outcomes in your own UI.
 * **Diagnostic Logs**: In all modes, full tracebacks and diagnostic logs are written to Android logcat and can be streamed in your terminal using `zkite run --logs`.

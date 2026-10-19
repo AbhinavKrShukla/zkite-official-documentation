@@ -12,10 +12,14 @@ hero:
       link: /getting-started/overview/
       icon: right-arrow
       variant: primary
+    - text: Device Services
+      link: /device-services/overview/
+      icon: laptop
+      variant: secondary
     - text: Widget Reference
       link: /widgets/
       icon: puzzle
-      variant: secondary
+      variant: minimal
     - text: View on GitHub
       link: https://github.com/AbhinavKrShukla/zkite
       icon: external
@@ -30,14 +34,14 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   <Card title="100% Native Rendering" icon="seti:android">
     No WebViews, Electron wrappers, or browser DOM. ZKite draws interfaces directly through Android's high-performance native canvas and UI subsystem.
   </Card>
+  <Card title="Native Device Services & Permissions" icon="laptop">
+    Access camera capture, AAC audio recording, media playback, motion sensors, biometrics, Keystore secrets, and file pickers with automatic permission inference.
+  </Card>
   <Card title="Instant Hot Reload" icon="rocket">
     Iterate at the speed of thought. Edit your Python source files on your computer and see updates appear immediately on your connected physical Android phone or emulator.
   </Card>
-  <Card title="Declarative Python UI" icon="seti:python">
-    Write familiar, elegant Python. Compose your screens using intuitive layout widgets (`Column`, `Row`, `Grid`, `Stack`) and reactive application state stores.
-  </Card>
   <Card title="Production APK & AAB Ready" icon="document">
-    Package self-contained release builds (`.apk` and `.aab`) signed with standard Android release keys. End-users install a normal app—they don't need Python or pip.
+    Package self-contained release builds (`.apk` and `.aab`) with automatic key discovery and post-signing manifest verification for Google Play distribution.
   </Card>
 </CardGrid>
 
@@ -125,8 +129,8 @@ Python has to run on the mobile device, so we heavily optimized the native engin
 ## Quick Start in 60 Seconds
 
 ```bash
-# 1. Install ZKite 1.1.2 in an isolated Python 3.14 environment
-pip install zkite==1.1.2
+# 1. Install ZKite 1.2.0 in an isolated Python 3.14 environment
+pip install zkite==1.2.0
 
 # 2. Scaffold a new Android application (creates main.py, app.json, assets/)
 zkite new my_mobile_app
@@ -137,8 +141,9 @@ zkite dev
 ```
 
 :::tip[Switch Documentation Version]
-You are viewing the current documentation for **ZKite 1.1.2 (Latest)**. Need to consult documentation for an older release?
-* **ZKite 1.1.2 (Latest)**: [Full Documentation](/getting-started/overview/) · [What's New in 1.1.2 & Migration](/getting-started/migration-1-1/)
+You are viewing the current documentation for **ZKite 1.2.0 (Latest)**. Need to consult documentation for an older release?
+* **ZKite 1.2.0 (Latest)**: [Full Documentation](/getting-started/overview/) · [What's New in 1.2.0 & Migration](/getting-started/migration-1-1/)
+* **ZKite 1.1.2**: [1.1.2 Documentation Archive](/v1-1-2/getting-started/overview/)
 * **ZKite 1.1.1**: [1.1.1 Documentation Archive](/v1-1-1/getting-started/overview/)
 * **ZKite 1.1.0**: [1.1.0 Documentation Archive](/v1-1-0/getting-started/overview/)
 * **ZKite 1.0.0**: [1.0.0 Documentation Archive](/v1-0-0/getting-started/overview/)

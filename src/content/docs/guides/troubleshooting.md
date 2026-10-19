@@ -72,6 +72,20 @@ Do not automatically uninstall an existing app to hide an update failure. Uninst
 
 ---
 
+## 5. Device Services & Permissions Problems (New in 1.2.0)
+
+| Symptom / Error | Checks and Next Action |
+| :--- | :--- |
+| `PermissionDenied` exception | The user denied runtime consent when prompted. Check with `try/except PermissionDenied` and explain the permission in your UI. |
+| `PermissionNotDeclared` exception | The static scanner could not detect a dynamic API call. Add the permission to `app.json` under `android.permissions` or specify an entry in `android.capabilities`. |
+| `UnsupportedFeature` exception | The physical device lacks the required hardware sensor (e.g. gyroscope, light sensor, camera torch). Check `await sensors.available()` before watching. |
+| `ResourceBusy` exception | Another system dialog (file picker, camera, biometric prompt) is already open, or the resource limit is reached (max 64 event coroutines, 32 pending requests, 16 sensor subscriptions, 8 audio players). Concurrently launching two system pickers is prohibited. |
+| `DeviceUnavailable` exception | The device operation was called in an environment without the native Android device bridge (such as on desktop host or in the experimental WebView backend). |
+| `DeviceIOError` exception | Low-level storage or ContentProvider stream error occurred while reading/writing a file. Catch and offer re-selection. |
+| Manifest verification fails on build | ZKite's Rust parser rejected the compiled `AndroidManifest.xml`. Check `.zkite/permissions.json` and ensure manual permissions are valid Android permission identifiers. |
+
+---
+
 ## Submitting a Useful Bug Report
 
 When reporting an issue:

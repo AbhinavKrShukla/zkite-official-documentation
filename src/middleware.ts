@@ -21,16 +21,23 @@ export const onRequest = defineMiddleware((context, next) => {
 		}
 	}
 
-	// Catch any /v1-1-2/... URLs and route them to current (latest) docs
-	if (pathname === '/v1-1-2' || pathname === '/v1-1-2/') {
+	// Catch any /v1-2-0/... or /v1-2/... URLs and route them to current (latest) docs
+	if (pathname === '/v1-2-0' || pathname === '/v1-2-0/' || pathname === '/v1-2' || pathname === '/v1-2/') {
 		return context.redirect('/getting-started/overview/', 302);
 	}
-	if (pathname.startsWith('/v1-1-2/')) {
-		const target = pathname.replace(/^\/v1-1-2/, '') || '/';
+	if (pathname.startsWith('/v1-2-0/')) {
+		const target = pathname.replace(/^\/v1-2-0/, '') || '/';
+		return context.redirect(target, 302);
+	}
+	if (pathname.startsWith('/v1-2/')) {
+		const target = pathname.replace(/^\/v1-2/, '') || '/';
 		return context.redirect(target, 302);
 	}
 
 	// Legacy or shorthand version archive redirects
+	if (pathname === '/v1-1-2/overview' || pathname === '/v1-1-2/overview/' || pathname === '/v1-1-2' || pathname === '/v1-1-2/') {
+		return context.redirect('/v1-1-2/getting-started/overview/', 302);
+	}
 	if (pathname === '/v1-1-1/overview' || pathname === '/v1-1-1/overview/' || pathname === '/v1-1-1' || pathname === '/v1-1-1/') {
 		return context.redirect('/v1-1-1/getting-started/overview/', 302);
 	}

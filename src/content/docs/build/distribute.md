@@ -61,11 +61,29 @@ zkite build aab --abi arm64-v8a --abi x86_64 --keystore /secure/keys/my_app.pem
 
 ---
 
+---
+
 ## 3. Shipping Updates
 
 When releasing a new version of an existing application:
 
 1. **Keep `package` identical** in `app.json` (or `pyproject.toml` in legacy projects).
 2. **Increment `version_code`** (e.g. from `1` to `2`). Android will reject any install where the version code is lower than or equal to the existing installation.
-3. **Update `version`** string (e.g. `"1.1.0"`).
+3. **Update `version`** string (e.g. `"1.2.0"`).
 4. **Sign with the exact same key**: Android cryptographically checks that the update signature matches the installed signature.
+
+---
+
+## 4. Compiled Manifest Verification & Google Play (New in 1.2.0)
+
+ZKite 1.2.0 performs automated verification of the compiled binary Android manifest directly inside the final signed APK or AAB:
+
+* **Built-in Rust Manifest Validator**: Analyzes `AndroidManifest.xml` (for APKs) and `base/manifest/AndroidManifest.xml` (for AABs) without requiring external Android SDK or Java command-line tools.
+* **Manifest Correctness**: Validates that all `<uses-permission>` tags are direct children of `<manifest>`, verifies proper resource and namespace encoding, and rejects duplicate permission declarations.
+* **Optional Hardware Attributes**: Marks camera, autofocus, microphone, and location hardware features with `android:required="false"` to prevent Google Play from filtering out devices lacking specific sensors.
+
+### Google Play Compliance Checklist
+* **Review Inferred Permissions**: Inspect `app.json` and `.zkite/permissions.json` to confirm all declared permissions match actual application usage.
+* **Test Denial & Recoveries**: Verify that denying camera, location, or microphone permissions displays a graceful in-app recovery rather than crashing.
+* **Data Safety & Privacy Policy**: Complete Google Play's Data Safety form and link an active Privacy Policy in the Play Console matching your actual app data collection.
+* **Manifest Checks vs Store Approval**: Technical manifest verification prevents invalid APK/AAB packaging errors; store policy compliance remains the developer's responsibility.

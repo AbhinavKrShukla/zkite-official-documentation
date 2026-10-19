@@ -1,13 +1,13 @@
 ---
 title: Configuration Reference (app.json & TOML)
-description: Complete specification of project settings in app.json for ZKite 1.1.1/1.1.0 and legacy pyproject.toml for 1.0.0.
+description: Complete specification of project settings in app.json for ZKite 1.2.0 and legacy pyproject.toml.
 ---
 
-ZKite 1.1.1 uses a declarative **`app.json`** file for project identity, Android packaging, permissions, and build configuration. Legacy **`pyproject.toml`** configuration remains fully supported for backward compatibility.
+ZKite 1.2.0 uses a declarative **`app.json`** file for project identity, Android packaging, permissions, and build configuration. Legacy **`pyproject.toml`** configuration remains fully supported for backward compatibility.
 
 ---
 
-## 1. `app.json` Specification (ZKite 1.1.1 & 1.1.0)
+## 1. `app.json` Specification (ZKite 1.2.0)
 
 Run project commands in the directory beside `app.json`.
 
@@ -22,7 +22,9 @@ Run project commands in the directory beside `app.json`.
     "version_code": 1,
     "min_sdk": 26,
     "target_sdk": 36,
-    "permissions": ["INTERNET"],
+    "permissions": ["INTERNET", "RECORD_AUDIO", "VIBRATE"],
+    "inferred_permissions": ["RECORD_AUDIO", "VIBRATE"],
+    "capabilities": ["audio.record", "haptics"],
     "icon": "assets/icon.png"
   }
 }
@@ -46,12 +48,14 @@ Run project commands in the directory beside `app.json`.
 | `version_code` | `integer` | `1` | Integer base used in generated Android versioning. Must increase for updates. |
 | `min_sdk` | `integer` | `26` | Minimum Android API level floor (API 26 = Android 8.0). |
 | `target_sdk` | `integer` | `36` | Target Android API level against which the app behavior is verified. |
-| `permissions` | `list[str]` | `["INTERNET"]` | Manifest permission declarations required by application features. |
-| `icon` | `string` | *(ZKite logo)* | Project-relative path to launcher icon PNG (e.g. `"assets/icon.png"`). In 1.1.2, builds wrap this as a full-bleed adaptive icon without baked-in padding. |
+| `permissions` | `list[str]` | `["INTERNET"]` | Manual and inferred manifest permissions, synchronized before run/build. |
+| `inferred_permissions` | `list[str]` | `[]` | *(New in 1.2.0)* Permissions managed by the automatic scanner. Obsolete entries are automatically pruned. |
+| `capabilities` | `list[str]` | `[]` | *(New in 1.2.0)* Explicit device capability names for dynamic uses the scanner cannot deduce. |
+| `icon` | `string` | *(ZKite logo)* | Project-relative path to launcher icon PNG (e.g. `"assets/icon.png"`). Builds wrap this as a full-bleed adaptive icon. |
 
-:::important[App Identity & Keystore Management]
-* **Update Identity**: Android determines whether an installation is an update to an existing app based on **`package`** and the **Signing Identity**. Never decrease `version_code` on an intended update.
-* **Automatic Signing Keys (1.1.2)**: Release keys are stored under `keystore/` (e.g. `keystore/release.pem` and `keystore/release.p12`). The folder is automatically added to `.gitignore`. Keep secure backups of your release signing identity.
+:::important[Automatic Permission Management & Keystores]
+* **Permissions Synchronization (1.2.0)**: `zkite run` and `zkite build` statically analyze your Python source and update `permissions` and `inferred_permissions`. Reasons are logged to `.zkite/permissions.json`.
+* **Automatic Signing Keys**: Release keys are stored under `keystore/` (e.g. `keystore/release.pem` and `keystore/release.p12`). The folder is automatically added to `.gitignore`. Keep secure backups of your release signing identity.
 :::
 
 ---

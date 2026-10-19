@@ -47,7 +47,7 @@ zkite dev [OPTIONS]
 
 ## `zkite run`
 
-Builds a standalone APK for the selected device architecture, installs it, and launches it. Uses the project's `.zkite/debug.pem` development signing identity.
+Scans Python source and synchronizes permissions in `app.json`, builds a standalone APK for the selected device architecture, verifies manifest permissions inside the compiled APK, installs it, and launches it. Uses the project's `.zkite/debug.pem` development signing identity.
 
 ```bash
 zkite run [OPTIONS]
@@ -66,12 +66,12 @@ zkite run [OPTIONS]
 
 ## `zkite build apk` & `zkite build aab`
 
-Compiles installable APKs or distribution AAB bundles without requiring a connected physical device. APK output is per-architecture; an AAB bundles selected architectures together.
+Statically synchronizes inferred permissions in `app.json`, builds application artifacts, and verifies compiled manifest permissions (`AndroidManifest.xml` in APKs and `base/manifest/AndroidManifest.xml` in AABs) using an internal Rust validator before saving output. A connected phone is not required. APK output is per-architecture; an AAB bundles selected architectures together.
 
 Both commands automatically discover and reuse `keystore/release.pem`. If no default key exists, the build creates the PEM/PKCS#12 pair under `keystore/`.
 
 ```bash
-# Build per-architecture APK with automatic keystore discovery
+# Build per-architecture APK with automatic permission scan and manifest check
 zkite build apk --abi arm64-v8a --out dist/
 
 # Build multi-architecture Android App Bundle for Google Play

@@ -120,6 +120,47 @@ def view():
 
 ---
 
+## Asynchronous Handlers & Device Operations (New in 1.2.0)
+
+While `Task` is optimized for synchronous worker functions (like `urllib`), ZKite 1.2.0 introduces first-class support for **`async def` event handlers** on the background async event loop. This enables nonblocking mobile device operations such as file pickers, camera capture, sensor watches, and audio recordings:
+
+```python
+from zkite import Button, Column, Text, store
+from zkite import files
+from zkite.errors import DeviceError
+
+@store
+class FileState:
+    filename: str = "None"
+    busy: bool = False
+
+state = FileState()
+
+def view():
+    async def pick_doc():
+        state.update(busy=True)
+        try:
+            doc = await files.pick(types=["application/pdf"])
+            if doc is not None:
+                state.update(filename=doc.name)
+        except DeviceError as err:
+            state.update(filename=f"Error: {err}")
+        finally:
+            state.update(busy=False)
+
+    return Column("p-6 gap-4",
+        Button("p-4 bg-blue-600 text-white rounded-xl", "Choose PDF",
+               on_tap=pick_doc, disabled=state.busy),
+        Text("text-slate-800", f"Selected: {state.filename}")
+    )
+```
+
+* **Thread-Safe Atomic Commits**: `state.update(...)` called from within an async coroutine is atomic with respect to native frame rendering.
+* **Hot Reload Protection**: Hot reloads automatically cancel active async device coroutines and prevent cancelled coroutines from modifying store state.
+* **Typed Exceptions**: Catch typed `DeviceError` exceptions (`PermissionDenied`, `ResourceBusy`, `UnsupportedFeature`, etc.) to guide the user gracefully. See [Async Handlers & Error Model](/device-services/async-handlers/) for details.
+
+---
+
 ## Error Handling & Public Diagnostics
 
 ### 1. Cleaner Public Errors (New in 1.1.2)

@@ -1,163 +1,131 @@
 ---
-title: What's New in 1.1.2 & Migration Guide
-description: Comprehensive overview of new features, bug fixes, and performance improvements across ZKite 1.1.2, 1.1.1, 1.1.0, and 1.0.0.
+title: What's New in 1.2.0 & Migration Guide
+description: Comprehensive overview of new features, bug fixes, device APIs, and performance improvements across ZKite 1.2.0, 1.1.2, 1.1.1, 1.1.0, and 1.0.0.
 ---
 
-ZKite **1.1.2** is the latest stable release of the framework, introducing a new premium Discover/Playground starter template, the nonblocking `Task` background I/O API, adaptive momentum scrolling, granular text wrapping and line-overflow controls, full-bleed adaptive launcher icons and native color emoji, the controlled swipeable `Tabs` widget, Android-aware dependency markers and package extras, pure-Python ASGI server compatibility (Starlette and Uvicorn), and automatic release key discovery.
+ZKite **1.2.0** is a major milestone release that elevates ZKite from a declarative UI renderer to a full-featured native Android application platform. It introduces comprehensive **device services** in pure Python—file/photo picking, streaming multipart uploads, external camera/video capture, flashlight torch control, AAC microphone recording, media audio playback with focus handling, Android text-to-speech, semantic haptics and vibration patterns, 8 hardware sensor streams, system sharing, clipboard, device & battery info, foreground location, local notifications, hardware-backed Keystore encrypted secrets, and biometric authentication.
 
-It builds directly upon **1.1.1** and **1.1.0** while maintaining backwards compatibility for existing projects.
+It also introduces **automatic permission scanning** without executing code, compiled **APK/AAB manifest verification**, and the **Device Lab** reference app.
 
 ---
 
-## Evolution: 1.0.0 vs. 1.1.0 vs. 1.1.1 vs. 1.1.2
+## Evolution: 1.0.0 vs. 1.1.0 vs. 1.1.1 vs. 1.1.2 vs. 1.2.0
 
-| Feature / Area | ZKite 1.0.0 | ZKite 1.1.0 | ZKite 1.1.1 | ZKite 1.1.2 (Latest) |
+| Feature / Area | ZKite 1.0.0 / 1.1.0 | ZKite 1.1.1 | ZKite 1.1.2 | ZKite 1.2.0 (Latest) |
 | :--- | :--- | :--- | :--- | :--- |
-| **Starter Scaffold (`new`)** | Basic counter template | Basic counter template | Basic counter template | **Interactive Discover/Playground**: Orange-and-white theme, swipeable tabs, and state persistence |
-| **Background I/O & Tasks** | Manual `threading.Thread` | Manual `threading.Thread` | Manual `threading.Thread` | **First-class `Task` API**: Module-level tasks, 4 managed workers, reactive `loading`/`data`/`error`, hot reload cancellation, stale result discard |
-| **Tab Navigation** | None (Stack navigation only) | None | None | **Controlled `Tabs` Widget**: Multi-page horizontal swipe physics with velocity momentum, scroll offset retention, and CSS snap on web |
-| **Text & Overflow** | Basic text rendering | Basic selection | First-press toolbar, UTF-16 cursor, keyboard tracking | **Overflow Controls & Emoji**: `wrap`, `multiline`, `max_lines`, `overflow="ellipsis"`, Noto color emojis & flag fallbacks |
-| **Scrolling Physics** | Basic touch scrolling | Basic touch scrolling | Viewport hit isolation & scroll clamping | **Smooth Momentum**: Adaptive velocity- and density-aware spline curves, held-finger gesture cancellation, `min-h-0` flex sizing |
-| **App Icons** | Flat PNG asset | `android.icon` in `app.json` | PNG resource packaging | **Full-Bleed Adaptive Icons**: Native Android adaptive icon resources without baked-in padding; auto-masked by system launchers |
-| **Dependency Resolution** | Static build-time | Resolves on build | Live automatic dev sync cached in `.zkite/dev-dependencies` | **Android-Aware Markers & Extras**: Evaluates markers against Android target (`aarch64`/`x86_64`, CPython 3.14.6); package extras tracked |
-| **ASGI Web Servers** | Not supported | Not supported | Not supported | **Pure-Python Servers**: Starlette & Uvicorn supported out of the box with `asyncio` and `h11` networking |
-| **Release Signing Keys** | Manual `--keystore` flag | Manual `--keystore` flag | Manual `--keystore` flag | **Automatic Key Discovery**: Default keys under ignored `keystore/` folder; auto-created and reused by APK/AAB builds |
-| **Framework Errors** | Tracebacks in all builds | Standalone release restart screen | Resilient dev reload diagnostics | **Actionable Public Errors**: Clean errors pointing to entry-point guidance without exposing internal planning-doc paths |
+| **Device Services** | None | None | None | **Native Python Device Services**: Files, camera, mic, audio, haptics, sensors, share, clipboard, location, notifications, secrets, biometrics |
+| **Permission Management** | Manual declarations in `app.json` | Manual declarations in `app.json` | Manual declarations in `app.json` | **Automatic Permissions Scanner**: Static Python analysis, `inferred_permissions`, `capabilities`, auto-pruning, and `.zkite/permissions.json` |
+| **Platform Manifest Verification** | None | None | None | **Built-in Rust Binary XML Validator**: Verifies `<uses-permission>` tags in signed APKs and AABs before saving output |
+| **Async Operations & I/O** | Manual threads | Manual threads | Nonblocking `Task` API (4 workers) | **First-Class `async def` Handlers**: Nonblocking background loop, atomic `state.update()`, and typed `DeviceError` hierarchy |
+| **Files & Storage** | Local project assets only | Local project assets only | Local project assets only | **SAF & Photo Picker**: `FileRef`, `copy_to()`, `local_copy()`, persistent URIs, `data_dir()`, `cache_dir()`, and atomic `files.save()` |
+| **HTTP File Uploads** | Standard synchronous requests | Standard synchronous requests | Standard synchronous requests | **Streaming Multipart `network.upload`**: Bounded memory, progress callbacks, TLS verification, max 4 concurrent streams |
+| **Camera & Microphone** | None | None | None | **Full-Resolution Intent Capture**: Photos, video, torch control, and AAC/M4A microphone recording with duration bounds |
+| **Audio & Haptics** | None | None | None | **MediaPlayer & Haptics**: Local/FileRef playback, audio focus handling, Android TTS, semantic feedback & custom vibration patterns |
+| **Hardware Sensors** | None | None | None | **8 Live Sensor Streams**: Accelerometer, gyro, rotation vector, light, proximity, magnetometer, shake (1–100 Hz, monotonic timestamps) |
+| **Security & Secrets** | None | None | None | **Hardware Keystore AES-GCM**: App-owned 256-bit encrypted secrets (up to 16 KiB) and `BiometricPrompt` authentication |
+| **Tab Navigation** | None | None | Controlled `Tabs` with swipe physics | Preserved scroll offsets, peer swiping, and gesture momentum |
+| **Text & Overflow** | Basic text | First-press toolbar, UTF-16 cursor | Overflow controls (`ellipsis`/`clip`), wrap, Noto color emoji | Unicode grapheme clusters, full color emoji, and auto-inferred remote image network permissions |
+| **Scaffold (`new`)** | Basic counter | Basic counter | Interactive Discover/Playground | Interactive Discover/Playground + Device Lab testing example |
 
 ---
 
-## 1. What's New in ZKite 1.1.2
+## 1. What's New in ZKite 1.2.0
 
-### New Premium Starter Application
-Running `zkite new myapp` creates an interactive orange-and-white Discover/Playground application with swipeable tabs and save interaction instead of a basic counter template. Creating or upgrading the framework preserves your existing application source files.
+### Automatic Permissions Inference & Manifest Verification
+Building (`zkite build apk`/`aab`) or running (`zkite run`) now statically scans your project's Python code **without running it**, automatically declaring permissions in `app.json`:
+* **Ownership Model**: Scanned permissions are tracked under `android.inferred_permissions`. Removing a feature from Python automatically prunes that permission from the manifest.
+* **Preserves Manual Entries**: Manual entries in `android.permissions` remain intact.
+* **Compiled Manifest Checking**: ZKite parses the compiled binary `AndroidManifest.xml` in APKs and `base/manifest/AndroidManifest.xml` in AABs using an internal Rust parser, checking namespace encodings, verifying direct children rules, and rejecting duplicate declarations.
+* **Play Store Safety**: Camera, autofocus, microphone, and location hardware features are tagged as `android:required="false"` to prevent unintentional Google Play device filtering.
 
-### Nonblocking API Calls with `Task`
-Synchronous I/O operations inside `view()` or UI handlers block the main Android thread. ZKite 1.1.2 introduces the module-level `Task` API:
+### Nonblocking Async Event Handlers & Typed Error Hierarchy
+Event handlers support `async def`, running on a background async loop so system dialogs and file pickers never stutter UI rendering:
+* **Atomic State Commits**: `state.update()` is thread-safe and atomic with respect to the render lock.
+* **Typed Exceptions**: Catch `DeviceError` subclasses like `PermissionDenied`, `PermissionNotDeclared`, `UnsupportedFeature`, `ResourceBusy`, `DeviceUnavailable`, and `OperationInterrupted`.
+* **Concurrency Guards**: Maximum 64 event coroutines, 32 pending Android requests, 16 sensor subscriptions, and 8 audio handles.
 
-```python
-import json
-from urllib.request import urlopen
-from zkite import Button, Column, Task, Text
+### File Selection, Persistent Storage & Streaming Uploads
+* **Native Pickers**: `files.pick()`, `files.pick_many()`, and privacy-preserving Android 13+ `files.pick_photo()` without broad storage permissions.
+* **Materialization**: `FileRef.copy_to()` with atomic destination replacement and `FileRef.local_copy()` async context manager.
+* **Streaming Multipart Uploads**: `network.upload()` streams multipart requests with throttled `on_progress(sent, total)` callbacks and fixed memory buffers.
 
-request = Task()
+### Camera, Torch & AAC Audio Recording
+* **Camera Capture**: Delegated to the user's native camera app for full-resolution photos and videos.
+* **Flashlight Torch**: `camera.torch(True/False)` with auto-off when backgrounded.
+* **Microphone Recording**: `audio.record(max_seconds=60)` records high-quality AAC/M4A audio with foreground lifecycle tracking.
 
-def fetch_data():
-    with urlopen("https://api.example.com/items", timeout=15) as res:
-        return json.loads(res.read())
+### Audio Playback, Text-to-Speech & Haptics
+* **Audio Playback**: `audio.play()` supports pause, seek, resume, stop, and handles audio focus loss and headphone disconnects.
+* **Text-to-Speech**: `audio.speak()` speaks text using Android's installed speech synthesis engines.
+* **Semantic Haptics**: `haptics.perform()` delivers click, confirm, reject, long-press, and keyboard feedback without needing manifest permissions.
+* **Custom Vibrations**: `haptics.vibrate()` supports duration pulses and custom timing patterns up to 10 seconds.
 
-def view():
-    return Column("flex-1 p-6 gap-4 bg-white",
-        Button("bg-orange-600 text-white p-4 rounded-xl", "Fetch",
-               on_tap=lambda: request.start(fetch_data), disabled=request.loading),
-        Text("text-slate-800", "Loading…" if request.loading else str(request.data)),
-        Text("text-red-600", str(request.error) if request.error else ""),
-    )
-```
+### 8 Hardware Sensor Streams
+Subscribe to real-time streams at 1–100 Hz:
+* Accelerometer, linear acceleration, gyroscope, 3D rotation vector, magnetometer, ambient light, proximity, and shake detection.
+* Samples include monotonic timestamps, sensor accuracy, and dropped sample counters.
+* Auto-pauses in background and auto-closes on hot reload.
 
-* **4 Managed Workers**: Background jobs execute with a bounded queue limit of 32 jobs.
-* **Reactive Frame Push**: Completion automatically updates `loading`, `data`, and `error` under the render lock and presents a new frame.
-* **Automatic Invalidation**: Calling `request.start()` again invalidates earlier in-flight requests. Calling `cancel()` or performing a hot reload immediately discards stale results.
-* **Data Continuity**: Previous successful data is preserved during refreshes or transient connection failures.
+### System Integrations, Encrypted Secrets & Biometrics
+* **System Chooser**: `share.send()` for text, URLs, and files.
+* **Clipboard**: Async `clipboard.read()` and `clipboard.write()`.
+* **Hardware & Status**: `device.info()`, `device.battery()`, `device.network()`, `device.open_url()`, and `device.keep_awake()`.
+* **Foreground Location**: Single-fix GPS/cellular location without Google Play Services.
+* **Local Notifications**: Android notification channels with `notifications.show()`.
+* **Hardware Keystore Secrets**: AES-256-GCM encrypted values (up to 16 KiB) stored in Android's `no_backup` directory.
+* **Biometric Authentication**: Official Android `BiometricPrompt` fingerprint and face unlock.
 
-### Swipeable `Tabs` Widget
-`Tabs` allows horizontal peer navigation with native velocity swipe physics:
-
-```python
-from zkite import ScrollView, Tabs, Text, store
-
-@store
-class Screen:
-    tab: int = 0
-
-def view(s: Screen):
-    return Tabs(
-        "flex-1",
-        ScrollView("flex-1", Text("p-6", "Discover Page")),
-        ScrollView("flex-1", Text("p-6", "Playground Page")),
-        ScrollView("flex-1", Text("p-6", "Settings Page")),
-        labels=["Discover", "Playground", "Settings"],
-        index=s.tab,
-        on_change=lambda index: s.update(tab=index),
-        key="main-tabs",
-    )
-```
-
-* **Preserved Scroll Offsets**: Pages remain mounted in memory, so vertical scroll offsets survive tab switching.
-* **Smooth Physics**: Native pages follow horizontal gesture momentum and snap cleanly to page boundaries. WebView uses CSS scroll snapping.
-
-### Text Overflow Controls, Line Limits & Emoji
-Text now wraps inside its parent container by default and provides granular line clamping:
-
-```python
-# Truncation with ellipsis
-Text("flex-1", title, multiline=False, overflow="ellipsis")
-Text("w-full", summary, max_lines=3, overflow="ellipsis")
-Text("w-full", description, max_lines=2, overflow="clip")
-Text("", ticker, wrap=False, overflow="visible")
-```
-
-* **Color Emoji & Flags**: Native text rendering incorporates Android's installed Noto emoji fonts, supporting full-color bitmap emojis and international flag sequences.
-* **Grapheme Clusters**: Native truncation respects Unicode grapheme boundaries, preventing surrogate pair splits.
-
-### Smooth Momentum Scrolling
-Scrolling containers use an adaptive spline curve sampled by elapsed time:
-* **Velocity Tracking**: Deceleration curves respond naturally to gesture flick speed.
-* **Held-Finger Cancellation**: Pausing a finger on the display before lifting resets stale velocity vectors to prevent unwanted inertia flings.
-* **Flex Layout Rules**: Use `flex-1` with `min-h-0` on intermediate parents to let scrolling containers shrink within available screen height.
-
-### Android-Aware Dependency Markers & Pure-Python ASGI Servers
-* **Target Environment Evaluation**: Dependency markers evaluate against the target Android environment (ARM64 uses `aarch64`, x86_64 uses `x86_64`, CPython matches 3.14.6). Package extras are tracked separately.
-* **Starlette & Uvicorn Support**: Run lightweight ASGI servers directly inside your Android app on their pure-Python `asyncio` and `h11` networking stack.
-
-### Automatic Release Signing Keys in `keystore/`
-Release builds automatically generate and discover signing identities under `keystore/`:
-* `zkite keygen` creates `keystore/release.pem` and `keystore/release.p12` by default.
-* `zkite build apk` and `zkite build aab` automatically discover and reuse `keystore/release.pem`, or generate it if missing.
-* The `keystore/` directory is automatically added to `.gitignore`.
-
-### Cleaner Public Errors
-Framework errors no longer expose internal planning-document references or internal module paths, providing actionable entry-point guidance directly in the terminal and dev overlays.
+### Device Lab Reference Application
+Test every device feature on physical hardware without external dependencies using `examples/device_lab` and `adb reverse` local upload testing.
 
 ---
 
-## 2. Key Features from 1.1.1 & 1.1.0
+## 2. Key Features from 1.1.2, 1.1.1 & 1.1.0
 
-* **Live Dev Dependency Sync (1.1.1)**: Edits to `requirements.txt` or `pyproject.toml` immediately sync packages live without restarting `zkite dev`.
-* **Screen Navigation Entrance Transitions (1.1.1)**: Smooth 160ms slide-and-fade native transitions and `Navigator.reset()`.
-* **Selection Toolbar & Unicode (1.1.1)**: Reliable first-press native Android text selection toolbar and UTF-16 cursor fidelity.
+* **Nonblocking `Task` API (1.1.2)**: Module-level background worker queue for synchronous I/O.
+* **Controlled `Tabs` Widget (1.1.2)**: Horizontal peer swiping with velocity momentum and preserved scroll offsets.
+* **Text Overflow & Color Emoji (1.1.2)**: `wrap`, `multiline`, `max_lines`, `overflow="ellipsis"`, and native Noto color emoji.
+* **Live Dev Dependency Sync (1.1.1)**: Instant package synchronization on file save.
+* **Screen Transitions (1.1.1)**: Smooth 160ms slide-and-fade navigation transitions.
 * **`app.json` Configuration (1.1.0)**: Declarative mobile identity, package name, version codes, and permissions.
-* **Recursive Asset Packaging (1.1.0)**: Automatic bundling of nested files in `assets/`.
-* **Native HTTPS Image Loader (1.1.0)**: Asynchronous verified TLS image loading with automatic memory caching.
+* **Native HTTPS Image Loader (1.1.0)**: Asynchronous verified TLS image loading with automatic caching.
 
 ---
 
-## Upgrading Your Project to 1.1.2
+## Upgrading Your Project to 1.2.0
 
 ### 1. Upgrade the CLI
-Install the latest release in your active Python 3.14 virtual environment:
+Install the 1.2.0 release in your active Python 3.14 virtual environment:
 ```bash
-pip install --upgrade zkite==1.1.2
+pip install --upgrade zkite==1.2.0
 ```
 
 On Windows (PowerShell):
 ```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade zkite==1.1.2
+.\.venv\Scripts\python.exe -m pip install --upgrade zkite==1.2.0
 ```
 
-### 2. Verify Version
+### 2. Verify Your Environment
 ```bash
 zkite --version
-# Output: zkite 1.1.2
+# Output: zkite 1.2.0
+
+# Verify matching framework and payload packages
+python -m pip show zkite zkite-framework zkite-payload
 ```
 
-### 3. Adopt New Features
-* Replace blocking network calls with module-level `Task` instances.
-* Use `Tabs` for multi-section peer screens.
-* Add `max_lines` and `overflow="ellipsis"` to clamp long titles or summaries.
-* Run `zkite build apk` or `zkite build aab` to take advantage of automatic `keystore/` release key discovery.
+### 3. Review `app.json` Permissions
+When you run `zkite run` or `zkite build apk`, ZKite will inspect your Python code and update `app.json` with `android.inferred_permissions`. Review the changes and commit `app.json` to your Git repository:
+
+```bash
+git diff app.json
+```
+
+If your code invokes device APIs dynamically, add explicit entries to `android.capabilities` or `android.permissions`.
 
 :::tip[Archived Documentation Versions]
 Looking for documentation for an earlier release?
+* [ZKite 1.1.2 Documentation Archive](/v1-1-2/getting-started/overview/)
 * [ZKite 1.1.1 Documentation Archive](/v1-1-1/getting-started/overview/)
 * [ZKite 1.1.0 Documentation Archive](/v1-1-0/getting-started/overview/)
 * [ZKite 1.0.0 Documentation Archive](/v1-0-0/getting-started/overview/)

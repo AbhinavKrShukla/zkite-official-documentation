@@ -66,7 +66,7 @@ ZKite 1.1.0 includes a native asynchronous HTTPS image loader:
 * **Limits**: 2 MiB maximum size per image.
 * **Caching & Retries**: Images are cached in a bounded memory cache. If a download fails, an empty placeholder is shown with a diagnostic in device logs; a subsequent render can retry after 30 seconds.
 * **Security**: HTTPS redirects cannot downgrade to unencrypted HTTP.
-* **Permission**: Requires `"permissions": ["INTERNET"]` under `android` in `app.json`.
+* **Permission**: In ZKite 1.2.0, `zkite run` and `zkite build` automatically infer the `INTERNET` permission for recognized remote image sources. For dynamic URLs loaded at runtime from databases or API responses, declare `"permissions": ["INTERNET"]` under `android` in `app.json`.
 
 :::caution[Image Loader Limitations]
 * **HTTP Cleartext**: Unencrypted plain `http://` URLs are blocked.

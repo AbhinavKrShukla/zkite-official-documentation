@@ -43,8 +43,20 @@ Yes. Both `zkite build apk` and `zkite build aab` run completely offline without
 ### Can I publish my finished mobile app to PyPI?
 No. Pip distributes the desktop developer framework. Mobile end-users receive an APK or an Android App Bundle distributed through an Android app store.
 
+### Do permissions get added automatically? (New in 1.2.0)
+Yes. `zkite run`, `zkite build apk`, and `zkite build aab` statically inspect your Python source code for recognized device API calls and update `app.json` with `android.inferred_permissions`. When you delete the last reference to a device API, subsequent builds automatically prune that permission. For dynamic code or third-party libraries, declare permissions or capabilities explicitly.
+
+### Does a valid APK/AAB guarantee Google Play acceptance? (New in 1.2.0)
+No. ZKite's built-in manifest verification confirms technical correctness (such as valid `<uses-permission>` tags and optional hardware flags). However, Google Play acceptance requires completing Data Safety disclosures, providing a working Privacy Policy, and justifying any restricted permissions.
+
+### Can I use the new device APIs on WebView or desktop? (New in 1.2.0)
+The device bridge is implemented exclusively on the native Android backend. Device module imports are completely desktop-safe for linting, typing, and testing, but calling an Android-only device function on desktop or in the experimental WebView backend raises `DeviceUnavailable`.
+
+### How do file and photo pickers access files without storage permissions? (New in 1.2.0)
+ZKite uses Android's Storage Access Framework (SAF) and modern Photo Picker (API 33+). Instead of requiring broad storage permissions, Android presents a system dialog where the user selects specific documents or photos. The system then grants temporary, scoped URI access solely to those chosen files.
+
 ### Should I upgrade only `zkite-framework`?
 No. Always keep the CLI (`zkite`), the framework (`zkite-framework`), and the runtime payload (`zkite-payload`) at the exact same version:
 ```bash
-pip install zkite==1.1.2
+pip install zkite==1.2.0
 ```

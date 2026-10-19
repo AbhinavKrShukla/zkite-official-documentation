@@ -113,20 +113,52 @@ The supported dependency path is **compatible pure-Python wheels**.
 
 ---
 
-## Network Permissions in `app.json`
+## Network Permissions in `app.json` (Updated in 1.2.0)
 
-To enable network access on Android, declare the `INTERNET` permission under `android` in `app.json`:
+In ZKite 1.2.0, `zkite run` and `zkite build` statically inspect your Python code and **automatically infer the `INTERNET` permission** whenever they detect common network libraries (`requests`, `urllib`, `httpx`, `aiohttp`) or remote `Image(src="https://...")` sources:
 
-```json title="app.json"
-{
-  "android": {
-    "permissions": ["INTERNET"]
+* **Automatic Declaration**: The scanner adds `"INTERNET"` to `android.permissions` and `android.inferred_permissions` in `app.json`.
+* **Explicit Declaration**: For dynamic network calls or third-party dependencies whose usage cannot be inferred statically, declare the permission explicitly:
+  ```json title="app.json"
+  {
+    "android": {
+      "permissions": ["INTERNET"]
+    }
   }
-}
+  ```
+* **Offline Apps**: If your app is strictly offline and you want to ensure no network permission is granted, remove `"INTERNET"` from `permissions` and avoid importing network clients.
+
+---
+
+## Streaming Multipart File Uploads (`network.upload`) (New in 1.2.0)
+
+For uploading user-selected files, audio recordings, or photos to a remote REST API, ZKite 1.2.0 provides the built-in `network.upload` streaming client:
+
+```python
+from zkite import files, network
+
+async def upload_file(selected_file: files.FileRef):
+    def progress_callback(sent: int, total: int):
+        print(f"Uploaded: {sent}/{total} bytes ({sent/total*100:.1f}%)")
+
+    try:
+        response = await network.upload(
+            url="https://api.example.com/v1/upload",
+            file=selected_file,
+            fields={"category": "invoices", "user_id": "842"},
+            headers={"Authorization": "Bearer TOKEN"},
+            on_progress=progress_callback,
+            timeout=60,
+        )
+        print(f"Server response code: {response.status}")
+    except network.HTTPError as exc:
+        print(f"HTTP error: {exc.response.status}")
 ```
 
-* New projects scaffolded with `zkite new` include this permission by default.
-* If your application is completely offline, remove `"INTERNET"` from `permissions`.
+* **Fixed Memory Footprint**: Uses a bounded memory buffer to stream large files without loading entire files into Python RAM.
+* **TLS Security**: Verifies server certificates by default. Plain HTTP requires `allow_http=True`.
+* **Concurrency**: Supports up to **4 concurrent uploads**.
+* **Cooperative Cancellation**: Cancelling the coroutine terminates socket streaming immediately.
 
 ---
 
