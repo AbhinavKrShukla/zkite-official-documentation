@@ -1,13 +1,13 @@
 ---
 title: Supported Environments & Matrix
-description: Operating system requirements, Android versions, CPU architectures, and Python compatibility for ZKite 1.2.0 (and earlier archives).
+description: Operating system requirements, Android versions, CPU architectures, and Python compatibility for ZKite 1.2.1 (and earlier archives).
 ---
 
 Before developing with ZKite, verify that your development computer and Android test hardware meet the requirements listed below.
 
 ## Support Matrix
 
-| Item | ZKite 1.2.0 Specification | Notes & Guidance |
+| Item | ZKite 1.2.1 Specification | Notes & Guidance |
 | :--- | :--- | :--- |
 | **Host Python** | **CPython 3.14** | Must use the same minor version as the supplied Android runtime. |
 | **Linux Host** | **x86_64**, glibc 2.28 or newer | Uses the validated `manylinux_2_28_x86_64` wheel. A musl-only environment is incompatible. |

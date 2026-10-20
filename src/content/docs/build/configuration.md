@@ -1,13 +1,13 @@
 ---
 title: Configuration Reference (app.json & TOML)
-description: Complete specification of project settings in app.json for ZKite 1.2.0 and legacy pyproject.toml.
+description: Complete specification of project settings in app.json for ZKite 1.2.1 and legacy pyproject.toml.
 ---
 
-ZKite 1.2.0 uses a declarative **`app.json`** file for project identity, Android packaging, permissions, and build configuration. Legacy **`pyproject.toml`** configuration remains fully supported for backward compatibility.
+ZKite 1.2.1 uses a declarative **`app.json`** file for project identity, Android packaging, permissions, deep links, and build configuration. Legacy **`pyproject.toml`** configuration remains fully supported for backward compatibility.
 
 ---
 
-## 1. `app.json` Specification (ZKite 1.2.0)
+## 1. `app.json` Specification (ZKite 1.2.1)
 
 Run project commands in the directory beside `app.json`.
 
@@ -25,6 +25,10 @@ Run project commands in the directory beside `app.json`.
     "permissions": ["INTERNET", "RECORD_AUDIO", "VIBRATE"],
     "inferred_permissions": ["RECORD_AUDIO", "VIBRATE"],
     "capabilities": ["audio.record", "haptics"],
+    "deep_links": [
+      {"scheme": "myapp", "host": "open", "path_prefix": "/item"},
+      {"scheme": "https", "host": "app.yourdomain.com", "path_prefix": "/item", "auto_verify": true}
+    ],
     "icon": "assets/icon.png"
   }
 }
@@ -49,8 +53,9 @@ Run project commands in the directory beside `app.json`.
 | `min_sdk` | `integer` | `26` | Minimum Android API level floor (API 26 = Android 8.0). |
 | `target_sdk` | `integer` | `36` | Target Android API level against which the app behavior is verified. |
 | `permissions` | `list[str]` | `["INTERNET"]` | Manual and inferred manifest permissions, synchronized before run/build. |
-| `inferred_permissions` | `list[str]` | `[]` | *(New in 1.2.0)* Permissions managed by the automatic scanner. Obsolete entries are automatically pruned. |
-| `capabilities` | `list[str]` | `[]` | *(New in 1.2.0)* Explicit device capability names for dynamic uses the scanner cannot deduce. |
+| `inferred_permissions` | `list[str]` | `[]` | Permissions managed by the automatic scanner. Obsolete entries are automatically pruned. |
+| `capabilities` | `list[str]` | `[]` | Explicit device capability names for dynamic uses the scanner cannot deduce. |
+| `deep_links` | `list[dict]` | `[]` | *(New in 1.2.1)* List of deep link patterns. Keys: `scheme`, `host`, `path_prefix`, and optional `auto_verify: true`. |
 | `icon` | `string` | *(ZKite logo)* | Project-relative path to launcher icon PNG (e.g. `"assets/icon.png"`). Builds wrap this as a full-bleed adaptive icon. |
 
 :::important[Automatic Permission Management & Keystores]

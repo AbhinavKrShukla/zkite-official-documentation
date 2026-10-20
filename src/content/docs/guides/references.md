@@ -37,6 +37,8 @@ ZKite owns the pure Python developer contracts documented across this site. The 
   Technical specification for manifest permission encoding, direct children rules, and XML namespaces.
 * **[Google Play Permissions Policy](https://support.google.com/googleplay/android-developer/answer/16558241)**
   Google Play developer distribution standards, restricted permissions declarations, and privacy requirements.
+* **[Handling Android App Links](https://developer.android.com/training/app-links/add-applinks)**
+  Associate website domains with native Android apps using Digital Asset Links (`assetlinks.json`) and configure deep link verification.
 
 ---
 

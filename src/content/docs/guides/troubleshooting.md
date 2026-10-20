@@ -72,17 +72,21 @@ Do not automatically uninstall an existing app to hide an update failure. Uninst
 
 ---
 
-## 5. Device Services & Permissions Problems (New in 1.2.0)
+## 5. Device Services, Media & Deep Link Problems (Updated in 1.2.1)
 
 | Symptom / Error | Checks and Next Action |
 | :--- | :--- |
 | `PermissionDenied` exception | The user denied runtime consent when prompted. Check with `try/except PermissionDenied` and explain the permission in your UI. |
 | `PermissionNotDeclared` exception | The static scanner could not detect a dynamic API call. Add the permission to `app.json` under `android.permissions` or specify an entry in `android.capabilities`. |
 | `UnsupportedFeature` exception | The physical device lacks the required hardware sensor (e.g. gyroscope, light sensor, camera torch). Check `await sensors.available()` before watching. |
-| `ResourceBusy` exception | Another system dialog (file picker, camera, biometric prompt) is already open, or the resource limit is reached (max 64 event coroutines, 32 pending requests, 16 sensor subscriptions, 8 audio players). Concurrently launching two system pickers is prohibited. |
+| `ResourceBusy` exception | Another system dialog (file picker, camera, biometric prompt) is already open, or the resource limit is reached (max 64 event coroutines, 32 pending requests, 16 sensor subscriptions, 8 media/recording handles). Concurrently launching two system pickers is prohibited. |
 | `DeviceUnavailable` exception | The device operation was called in an environment without the native Android device bridge (such as on desktop host or in the experimental WebView backend). |
 | `DeviceIOError` exception | Low-level storage or ContentProvider stream error occurred while reading/writing a file. Catch and offer re-selection. |
 | Manifest verification fails on build | ZKite's Rust parser rejected the compiled `AndroidManifest.xml`. Check `.zkite/permissions.json` and ensure manual permissions are valid Android permission identifiers. |
+| Deep link does not open app | Rebuild and reinstall your application (`zkite run`). Python hot reload cannot alter the binary `AndroidManifest.xml`. For custom schemes, check scheme/host casing. For HTTPS App Links, verify `assetlinks.json` hosted at your domain and check SHA-256 certificate matching. |
+| Python widgets not visible over video | The native Android video surface renders above the Python declarative tree. Use `control_style` for controls on the video, or place Python controls outside the video rectangle or inside an `Overlay`. |
+| Video bounds out of position | Video bounds are absolute content coordinates in Android dp and do not automatically reflow. Call `await player.bounds(x, y, width, height)` after changing layout. |
+| Audio/video pauses unexpectedly | Check `snapshot.reason`. Incoming calls, transient focus loss, or disconnected Bluetooth/wired headphones pause playback. Resume explicitly with `await player.resume()`. |
 
 ---
 

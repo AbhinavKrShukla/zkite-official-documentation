@@ -55,8 +55,14 @@ The device bridge is implemented exclusively on the native Android backend. Devi
 ### How do file and photo pickers access files without storage permissions? (New in 1.2.0)
 ZKite uses Android's Storage Access Framework (SAF) and modern Photo Picker (API 33+). Instead of requiring broad storage permissions, Android presents a system dialog where the user selects specific documents or photos. The system then grants temporary, scoped URI access solely to those chosen files.
 
+### Can I test deep links locally with hot reload? (New in 1.2.1)
+Deep link URL patterns must be registered under `android.deep_links` in `app.json` and compiled into the Android manifest using `zkite run` or `zkite build`. Once installed on your device or emulator, you can test links via `adb shell am start` or by clicking links in other apps; your Python listener (`links.listen`) will receive incoming links live.
+
+### Can I layer Python widgets directly on top of native video? (New in 1.2.1)
+The Android native video surface is rendered by hardware above the Python view hierarchy. Standard Python widgets cannot paint on top of that video surface. To customize controls directly over the video, use the `control_style` configuration. To use pure Python controls (like `media.Controls`), render bounded video with `controls=False` and place your Python widgets outside the video rectangle or inside an `Overlay`.
+
 ### Should I upgrade only `zkite-framework`?
 No. Always keep the CLI (`zkite`), the framework (`zkite-framework`), and the runtime payload (`zkite-payload`) at the exact same version:
 ```bash
-pip install zkite==1.2.0
+pip install zkite==1.2.1
 ```

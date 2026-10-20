@@ -18,8 +18,8 @@
 </div>
 
 > [!NOTE]
-> **Status: Version 1.2.0 Release**  
-> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Features native device services (camera, mic, audio playback, haptics, sensors, file uploads, Keystore secrets, and biometrics), automatic permission inference, compiled manifest verification, and multi-version switching across 1.2.0, 1.1.2, 1.1.1, 1.1.0, and 1.0.0.
+> **Status: Version 1.2.1 Release**  
+> Official developer documentation is live at **[zkite.cloud](https://zkite.cloud)**. Features native deep links, customizable audio & video playback, device services (camera, mic, haptics, sensors, file uploads, Keystore secrets, and biometrics), automatic permission inference, compiled manifest verification, and multi-version switching across 1.2.1, 1.2.0, 1.1.2, 1.1.1, 1.1.0, and 1.0.0.
 
 ---
 
@@ -108,13 +108,14 @@ Install into an isolated Python 3.14 virtual environment:
 ```bash
 # Linux
 python3.14 -m venv .venv && source .venv/bin/activate
-pip install zkite==1.2.0
+pip install zkite==1.2.1
 
 # Windows (PowerShell)
 py -3.14 -m venv .venv; .\.venv\Scripts\Activate.ps1
-pip install zkite==1.2.0
+pip install zkite==1.2.1
 
 # For previous releases:
+# pip install zkite==1.2.0
 # pip install zkite==1.1.2
 # pip install zkite==1.1.1
 # pip install zkite==1.1.0

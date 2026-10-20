@@ -9,9 +9,11 @@ description: Core technical terms, definitions, and acronyms used throughout the
 | **adb** | Android Debug Bridge; the host command-line utility used to communicate with and control authorized Android devices. |
 | **APK** | Android Application Package; the file format used to install apps directly onto Android devices. |
 | **AAB** | Android App Bundle; the format required by modern app stores (such as Google Play) to generate architecture-optimized split APKs. |
+| **App Link** | A verified HTTPS deep link associated with a website domain via Digital Asset Links, opening directly without an app chooser. |
 | **Callback** | A Python function or callable invoked in response to a user action (such as `on_tap` or `on_change`). |
 | **Class String** | The utility string (e.g. `"flex-1 p-4 bg-slate-900"`) passed as the first positional argument to describe layout and styling. |
 | **Controlled Input** | A form control whose displayed value and selection are bound to observable application state. |
+| **Deep Link** | A URL pattern (custom scheme or HTTPS) that routes external intents directly to specific screens or states within an app. |
 | **Development Preview** | The temporary testing app instance deployed by `zkite dev` for live source syncing and hot reload. |
 | **Hot Reload** | The instantaneous update of the running interface on device upon saving Python source files. |
 | **Key** | A unique, stable identity passed to a widget to maintain its internal state across UI tree reconciliations. |

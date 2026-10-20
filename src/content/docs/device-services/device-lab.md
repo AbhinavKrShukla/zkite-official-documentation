@@ -22,6 +22,10 @@ zkite run
 
 `zkite run` scans the Python code, automatically infers required permissions in `app.json`, builds a development APK, verifies the manifest, installs it to your device over ADB, and launches the application.
 
+:::tip[Continuous Audio Playback (Updated in 1.2.1)]
+The demo's old two-second audio sample cutoff has been removed. Audio playback in Device Lab now plays continuously until the track finishes, you pause or stop it, or Android interrupts it.
+:::
+
 ---
 
 ## Testing File Uploads Locally
